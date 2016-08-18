@@ -1,0 +1,88 @@
+html, body {
+  height:100%;
+  margin:0;
+}
+#map {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+#debug {
+  position: absolute;
+  width: 100%;
+  height: 20%;
+  top: 80%;
+  display:none;
+}
+#activateButton {
+  right: 2%;
+  top: 2%;
+  display: none;
+}
+#mapButton {
+  left: 2%;
+  bottom: 2%;
+}
+#storyButton {
+  left: 2%;
+  bottom: 2%;
+}
+#resetButton {
+  right: 2%;
+  bottom: 2%;
+}
+
+.gameButton img {
+  display: block;
+  width: 100%;
+}
+.gameButton {
+  position: absolute;
+  background-color: white;
+  max-width: 40%;
+  padding: 3px;
+  border: solid 3px black;
+  color: red;
+  cursor: pointer;
+  text-align: center;
+  font-family: sans-serif;
+  font-weight: bold;
+}
+#init {
+  background-color: black;
+  font-size: 4em;
+  font-family: sans-serif;
+  text-align: center;
+  color: white;
+  height: 100%;
+  width: 100%;
+  padding-top: 4em;
+}
+#storyView, #mapView {
+  position: relative;
+  height: 100%;
+  width: 100%;
+} 
+
+#storyView {
+  display: none;
+}
+#storyArea { 
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+}
+#storyMain img { 
+  max-width: 95%;
+}
+#storyMain { 
+  padding: 1em;
+}
+#storyEnd {
+  padding-bottom: 4em;
+  border-top: solid 1px #000;
+  border-bottom: solid 1px #000;
+  padding: 0.5em 1em;
+  background-color: #ccc;
+  margin-bottom: 200px;
+}
