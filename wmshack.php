@@ -13,13 +13,79 @@ $data = dom_to_array( $dom );
 //header( "Content-type: text/plain" );
 list( $endpoint, $crud ) = preg_split( "/\?/", $url, 2 );
 
-print "<table border='1' style='width:100%'>";
-print "<tr><th></th><th>Name</th><th>Title</th><th></th></tr>";
-show_layer( $data['WMS_Capabilities']['Capability']['Layer'], $endpoint );
-print "</table>";
+if( @$data["WMS_Capabilities"] )
+{
+    print "<table border='1' style='width:100%'>";
+    print "<tr><th></th><th>Name</th><th>Title</th><th>Abstract</th><th>Link</th></tr>";
+    show_wms_layer( $data['WMS_Capabilities']['Capability']['Layer'], $endpoint );
+    print "</table>";
+}
+elseif( @$data["WFS_Capabilities"] )
+{
+    $om = $data["WFS_Capabilities"]["OperationsMetadata"]["Operation"];
+    $oformats = array();
+    foreach( $om as $o ) {
+        if( $o["name"] == "GetFeature" ) {
+            foreach( $o["Parameter"] as $p ) {
+                if( $p["name"] == "outputFormat" ) {
+                    $oformats = ensureList($p["Value"]);
+                }
+            } 
+        }
+    }
+            
+    print "<table border='1' style='width:100%'>";
+    print "<tr><th></th><th>Name</th><th>Title</th><th>Abstract</th><th>Link</th></tr>";
+    show_ftlist( $data['WFS_Capabilities']['FeatureTypeList'], $endpoint,$oformats );
+    print "</table>";
+}
+else 
+{
+    print "no sure about this file!";
+    print "<pre>";
+    print_r( $data );
+}
 exit;
 
-function show_layer( $layer, $endpoint, $depth = 0 ) {
+function ensureList($v) {
+    if( !is_array($v) || isAssoc($v) ) { return array( $v ); }
+    return $v;
+}
+
+
+function show_ftlist( $ftlist, $endpoint, $oformats, $depth = 0 ) {
+    if( @$_GET['debug'] ) { print "<tr><td colspan='4'><div style='width: 500px; overflow-x:auto;' ><pre>".print_r( $ftlist, true )."</pre></div></td></tr>"; }
+    $list = ensureList( $ftlist["FeatureType"] );
+
+    foreach( $list as $ft ) {
+if( @is_array( $ft["Abstract"] ) ) { $ft["Abstract"] = print_r( $ft["Abstract"],1 ); }
+        print "<tr>";
+        print "<td>";
+        for( $i=0;$i<$depth;++$i ) { print "&bull;"; }
+        print "</td>";
+        print "<td>".@$ft["Name"]."</td>";
+        print "<td>".@$ft["Title"]."</td>";
+        print "<td>".@$ft["Abstract"]."</td>";
+        
+        print "<td>";
+        if( @$ft["Name"] ) {
+            $l = array();
+            list( $ns, $term ) = preg_split( "/:/", $ft["Name"] );
+            $l []= "<a href='wfsview.php?endpoint=$endpoint&namespace=$ns&term=$term'>View</a>";
+            foreach( $oformats as $oformat ) {
+                $l[]= "<a href='$endpoint?service=wfs&request=GetFeature&typeName=".$ft["Name"]."&outputFormat=$oformat'>$oformat</a>";
+            }
+            print join( ", ", $l );
+        }
+        print "</td>";
+        print "</tr>";
+    }
+}
+
+
+
+
+function show_wms_layer( $layer, $endpoint, $depth = 0 ) {
     if( @$_GET['debug'] ) { print "<tr><td colspan='4'><div style='width: 500px; overflow-x:auto;' ><pre>".print_r( $layer, true )."</pre></div></td></tr>"; }
     print "<tr>";
     print "<td>";
@@ -27,6 +93,7 @@ function show_layer( $layer, $endpoint, $depth = 0 ) {
     print "</td>";
     print "<td>".@$layer["Name"]."</td>";
     print "<td>".@$layer["Title"]."</td>";
+    print "<td>".@$layer["Abstract"]."</td>";
     
     print "<td>";
     if( @$layer["Name"] ) {
@@ -37,10 +104,9 @@ function show_layer( $layer, $endpoint, $depth = 0 ) {
     if( @$layer["Layer"] ) {
         print "<tr><td colspan='4'>";
         print "<table border='1' style='width:100%'>";
-        print "<tr><th></th><th>Name</th><th>Title</th><th></th></tr>";
-        $list = $layer["Layer"];
-        if( isAssoc($list) ) { $list = array( $list ); }
-        foreach( $list as $sublayer ) { show_layer( $sublayer, $endpoint, $depth+1 ); }
+        print "<tr><th></th><th>Name</th><th>Title</th><th>Abstract</th><th>Link</th></tr>";
+        $list = ensureList( $layer["Layer"] );
+        foreach( $list as $sublayer ) { show_wms_layer( $sublayer, $endpoint, $depth+1 ); }
         print "</table>";
         print "</td>";
         print "</tr>";
@@ -89,19 +155,22 @@ function dom_to_array($root)
     for($i = 0; $i < $children->length; $i++)
     {
         $child = $children->item($i);
+        $childNodeName = preg_replace( '/.*:/','',$child->nodeName );
 
-        if (!isset($result[$child->nodeName]))
-            $result[$child->nodeName] = dom_to_array($child);
+        if (!isset($result[$childNodeName]))
+        {
+            $result[$childNodeName] = dom_to_array($child);
+        }
         else
         {
-            if (!isset($group[$child->nodeName]))
+            if (!isset($group[$childNodeName]))
             {
-                $tmp = $result[$child->nodeName];
-                $result[$child->nodeName] = array($tmp);
-                $group[$child->nodeName] = 1;
+                $tmp = $result[$childNodeName];
+                $result[$childNodeName] = array($tmp);
+                $group[$childNodeName] = 1;
             }
 
-            $result[$child->nodeName][] = dom_to_array($child);
+            $result[$childNodeName][] = dom_to_array($child);
         }
     }   
     }
