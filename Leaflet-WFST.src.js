@@ -223,7 +223,8 @@ L.Format.Base = L.Class.extend({
       }
       return coords;
     },
-    geometryField: 'Shape'
+    geometryField: 'Shape',
+    geometryFieldGuess: false
   },
 
   initialize: function (options) {
@@ -246,6 +247,7 @@ L.Format.Base = L.Class.extend({
   },
 
   setFeatureDescription: function (featureInfo) {
+console.log( featureInfo );
     this.namespaceUri = featureInfo.attributes.targetNamespace.value;
     var schemeParser = new L.Format.Scheme(this.options.geometryField);
     this.featureType = schemeParser.parse(featureInfo);
@@ -720,10 +722,14 @@ L.Format.GML = L.Format.Base.extend({
     var layers = [];
     var xmlDoc = L.XmlUtil.parseXml(rawData);
     var featureCollection = xmlDoc.documentElement;
+
     var featureMemberNodes = featureCollection.getElementsByTagNameNS(L.XmlUtil.namespaces.gml, 'featureMember');
     for (var i = 0; i < featureMemberNodes.length; i++) {
       var feature = featureMemberNodes[i].firstChild;
-      layers.push(this.processFeature(feature));
+      var layer = this.processFeature(feature);
+      if( layer ) {
+        layers.push(layer);
+      }
     }
 
     var featureMembersNode = featureCollection.getElementsByTagNameNS(L.XmlUtil.namespaces.gml, 'featureMembers');
@@ -732,7 +738,10 @@ L.Format.GML = L.Format.Base.extend({
       for (var j = 0; j < features.length; j++) {
         var node = features[j];
         if (node.nodeType === document.ELEMENT_NODE) {
-          layers.push(this.processFeature(node));
+          var layer = this.processFeature(node);
+          if( layer ) {
+            layers.push(layer);
+          }
         }
       }
     }
@@ -742,12 +751,35 @@ L.Format.GML = L.Format.Base.extend({
 
   processFeature: function (feature) {
     var layer = this.generateLayer(feature);
-    layer.feature = this.featureType.parse(feature);
+    if( layer ) {
+      layer.feature = this.featureType.parse(feature);
+    }
     return layer;
   },
 
   generateLayer: function (feature) {
-    var geometryField = feature.getElementsByTagNameNS(this.namespaceUri, this.options.geometryField)[0];
+    var geometryField; 
+    if( this.options.geometryFieldGuess ) { 
+      var kids = feature.childNodes;
+
+      for( var i=0; i<kids.length; ++i ) {
+      
+        // actual gml in the feature is probably not the geo field  
+        if( kids[i].namespaceURI == 'http://www.opengis.net/gml' ) { continue; }
+
+        // what we want is a field that's not gml: but who's first child is
+        var grandkid = kids[i].firstElementChild;
+        if( grandkid && grandkid.namespaceURI == 'http://www.opengis.net/gml' ) { 
+          geometryField = kids[i];
+          break;
+        }
+      }
+    } else {
+      geometryField = feature.getElementsByTagNameNS(this.namespaceUri, this.options.geometryField)[0];
+    }
+
+    if( !geometryField ) { return false; }
+
     return this.parseElement(geometryField.firstChild, this.options);
   }
 });
@@ -851,6 +883,7 @@ L.WFS = L.FeatureGroup.extend({
     crs: L.CRS.EPSG3857,
     showExisting: true,
     geometryField: 'Shape',
+    geometryFieldGuess: false,
     url: '',
     version: '1.1.0',
     typeNS: '',
@@ -874,7 +907,8 @@ L.WFS = L.FeatureGroup.extend({
 
     this.readFormat = readFormat || new L.Format.GML({
       crs: this.options.crs,
-      geometryField: this.options.geometryField
+      geometryField: this.options.geometryField,
+      geometryFieldGuess: this.options.geometryFieldGuess
     });
 
     this.options.typeNSName = this.namespaceName(this.options.typeName);
@@ -922,7 +956,6 @@ L.WFS = L.FeatureGroup.extend({
         version: this.options.version,
         outputFormat: this.readFormat.outputFormat
       });
-
     var query = request.appendChild(L.XmlUtil.createElementNS('wfs:Query',
       {
         typeName: this.options.typeNSName,

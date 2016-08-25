@@ -8,6 +8,8 @@
   <link rel="stylesheet" type="text/css" media="all" href="style.css" />
   <script src="leaflet.js"></script>
   <script src="jquery.min.js"></script>
+  <script src="proj4-compressed.js"></script>
+  <script src="proj4leaflet.js"></script>
   <script src="Leaflet-WFST.src.js"></script>
 </head>
 
@@ -33,31 +35,21 @@ $(document).ready(function(){
 		maxZoom: 19
     }).addTo(map);
 
-
-L.WFST.include(MultiEditableMixin);
+var epsg27700 = new L.Proj.CRS("EPSG:27700","+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 +units=m +no_defs");
 
 var wfst = new L.WFST({
-    url: '<?php print $_GET['endpoint']; ?>',
+    url: 'proxy.php?endpoint=<?php print urlencode($_GET['endpoint']); ?>',
     typeNS: '<?php print $_GET['namespace']; ?>',
     typeName: '<?php print $_GET['term']; ?>',
+    geometryFieldGuess: true,
+    crs: epsg27700,
     style: {
         color: 'blue',
         weight: 2
     }
 }).addTo(map).once('load', function () {
-       alert(23);
             map.fitBounds(wfst);
-            wfst.enableEdit();
-        });
-
-map.on('editable:created', function (e) {
-    wfst.addLayer(e.layer);
 });
-
-map.on('editable:editing', function (e) {
-    wfst.editLayer(e.layer);
-});
-
 
 
 

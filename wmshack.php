@@ -11,32 +11,43 @@ exit;
 }
 $data = dom_to_array( $dom );
 //header( "Content-type: text/plain" );
-list( $endpoint, $crud ) = preg_split( "/\?/", $url, 2 );
+$endpoint = preg_replace( "/\?.*$/", "", $url );
+$get_endpoint = $endpoint;
+$post_endpoint = $endpoint;
 
 if( @$data["WMS_Capabilities"] )
 {
     print "<table border='1' style='width:100%'>";
     print "<tr><th></th><th>Name</th><th>Title</th><th>Abstract</th><th>Link</th></tr>";
-    show_wms_layer( $data['WMS_Capabilities']['Capability']['Layer'], $endpoint );
+    show_wms_layer( $data['WMS_Capabilities']['Capability']['Layer'], $get_endpoint );
     print "</table>";
 }
 elseif( @$data["WFS_Capabilities"] )
 {
     $om = $data["WFS_Capabilities"]["OperationsMetadata"]["Operation"];
+   
     $oformats = array();
     foreach( $om as $o ) {
         if( $o["name"] == "GetFeature" ) {
             foreach( $o["Parameter"] as $p ) {
                 if( $p["name"] == "outputFormat" ) {
-                    $oformats = ensureList($p["Value"]);
+                    if( @$p["Value"] ) {
+                      $oformats = ensureList($p["Value"]);
+                    } elseif( @$p["AllowedValues"]["Value"] ) {
+                      $oformats = ensureList($p["AllowedValues"]["Value"]);
+                    }
                 }
             } 
+            $get_endpoint = @$o["DCP"]["HTTP"]["Get"]["href"];
+            $post_endpoint = @$o["DCP"]["HTTP"]["Post"]["href"];
         }
     }
+
+#<ows:DCP><ows:HTTP><ows:Get xlink:href="http://inspire.misoportal.com:80/geoserver/gateshead_council_conservationareas/wfs"/><ows:Post xlink:href="http://inspire.misoportal.com:80/geoserver/gateshead_council_conservationareas/wfs"/></ows:HTTP></ows:DCP>
             
     print "<table border='1' style='width:100%'>";
     print "<tr><th></th><th>Name</th><th>Title</th><th>Abstract</th><th>Link</th></tr>";
-    show_ftlist( $data['WFS_Capabilities']['FeatureTypeList'], $endpoint,$oformats );
+    show_ftlist( $data['WFS_Capabilities']['FeatureTypeList'], $get_endpoint,$post_endpoint,$oformats );
     print "</table>";
 }
 else 
@@ -53,7 +64,7 @@ function ensureList($v) {
 }
 
 
-function show_ftlist( $ftlist, $endpoint, $oformats, $depth = 0 ) {
+function show_ftlist( $ftlist, $get_endpoint, $post_endpoint, $oformats, $depth = 0 ) {
     if( @$_GET['debug'] ) { print "<tr><td colspan='4'><div style='width: 500px; overflow-x:auto;' ><pre>".print_r( $ftlist, true )."</pre></div></td></tr>"; }
     $list = ensureList( $ftlist["FeatureType"] );
 
@@ -70,10 +81,14 @@ if( @is_array( $ft["Abstract"] ) ) { $ft["Abstract"] = print_r( $ft["Abstract"],
         print "<td>";
         if( @$ft["Name"] ) {
             $l = array();
-            list( $ns, $term ) = preg_split( "/:/", $ft["Name"] );
-            $l []= "<a href='wfsview.php?endpoint=$endpoint&namespace=$ns&term=$term'>View</a>";
+            $ns = "";
+            $term = $ft["Name"];
+            if( preg_match( "/:/", $ft["Name"] ) ) {
+                list( $ns, $term ) = preg_split( "/:/", $ft["Name"] );
+            }
+            $l []= "<a href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View</a>";
             foreach( $oformats as $oformat ) {
-                $l[]= "<a href='$endpoint?service=wfs&request=GetFeature&typeName=".$ft["Name"]."&outputFormat=$oformat'>$oformat</a>";
+                $l[]= "<a href='$get_endpoint?service=wfs&request=GetFeature&typeName=".$ft["Name"]."&outputFormat=$oformat'>$oformat</a>";
             }
             print join( ", ", $l );
         }

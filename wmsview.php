@@ -13,7 +13,7 @@
 <body>
   <div id='mapView'> 
     <div id="map">
-      <div id="init">Initialising Data Stuff</div>
+      <div id="init"></div>
     </div>
   </div>
 </body>
@@ -27,9 +27,10 @@ $(document).ready(function(){
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
         maxZoom: 17
     }).addTo(map);
+
     L.tileLayer('https://tiles.maps.southampton.ac.uk/aer/{z}/{x}/{y}.png', {
 		attribution: 'Aerial photography &copy; Hampshire County Council',
-		maxZoom: 19
+		maxZoom: 18
     }).addTo(map);
 
 var wmsLayer = L.tileLayer.wms('<?php print $_GET['endpoint']; ?>', {
