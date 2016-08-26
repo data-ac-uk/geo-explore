@@ -11,6 +11,18 @@
   <script src="proj4-compressed.js"></script>
   <script src="proj4leaflet.js"></script>
   <script src="Leaflet-WFST.src.js"></script>
+<style>
+table.propinfo {
+  border: solid 1px black;
+}
+table.propinfo th {
+  text-align: right;
+  vertical-align: top;
+}
+table.propinfo th {
+  vertical-align: top;
+}
+</style>
 </head>
 
 <body>
@@ -44,15 +56,15 @@ $(document).ready(function(){
   	//var popupContent = JSON.stringify( feature.feature,null,3 );
   	var popupContent = structure2tree(feature.feature);
 
-        layer.bindPopup(popupContent);
+        layer.bindPopup(popupContent, { maxWidth: '600' });
      }
 
      function structure2tree( s, p='' ) {
         if( typeof(s) == 'object' ) {
           var keys = Object.keys(s);
-          h = "<table>";
+          h = "<table class='propinfo'>";
           for( var i=0;i<keys.length;++i ) {
-            h +="<li>"+p+keys[i]+": "+structure2tree( s[keys[i]] )+"</li>";
+            h +="<tr><th>"+p+keys[i]+":</th><td>"+structure2tree( s[keys[i]] )+"</td></tr>";
           }
           h += "<table>";
           return h;
