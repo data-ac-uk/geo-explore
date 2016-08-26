@@ -83,6 +83,7 @@ error_reporting(E_ALL);
 	function RenderWmsData($data, $get_endpoint)
 	{
 		?>
+		<h2>Available Datsets</h2>
 		<table class="table table-striped">
 			<thead>
 				<tr>
@@ -104,6 +105,7 @@ error_reporting(E_ALL);
 	function RenderWfsData($data, $get_endpoint, $post_endpoint, $oformats)
 	{
 		?>
+		<h2>Available Datsets</h2>
 		<table class="table table-striped">
 			<thead>
 				<tr>
@@ -138,8 +140,7 @@ error_reporting(E_ALL);
 	{
 		?>
 		<div class="row">						
-			<div class="col-lg-12">
-				<h2>Available Datsets</h2>
+			<div class="col-lg-12">				
 				<?php
 					$dom = new DOMDocument('1.0','UTF-8');
 
@@ -148,7 +149,7 @@ error_reporting(E_ALL);
 						RenderAlertForErrorLoadingData();
 					}
 					else 
-					{
+					{						
 						$data = dom_to_array( $dom );
 						//header( "Content-type: text/plain" );
 						$endpoint = preg_replace( "/\?.*$/", "", $url );
