@@ -247,8 +247,10 @@ L.Format.Base = L.Class.extend({
   },
 
   setFeatureDescription: function (featureInfo) {
-console.log( featureInfo );
-    this.namespaceUri = featureInfo.attributes.targetNamespace.value;
+    this.namespaceUri = '';
+    if( featureInfo.attributes.targetNamespace ) {
+      this.namespaceUri = featureInfo.attributes.targetNamespace.value;
+    }
     var schemeParser = new L.Format.Scheme(this.options.geometryField);
     this.featureType = schemeParser.parse(featureInfo);
   }
@@ -422,7 +424,7 @@ L.GML.PointNode = L.GML.Geometry.extend({
   },
 
   parse: function (element) {
-    return this.parseElement(element.firstChild, {dimensions: this.dimensions(element)});
+    return this.parseElement(element.firstElementChild, {dimensions: this.dimensions(element)});
   }
 });
 
@@ -438,7 +440,7 @@ L.GML.PointSequence = L.GML.Geometry.extend({
   },
 
   parse: function (element) {
-    var firstChild = element.firstChild;
+    var firstChild = element.firstElementChild;
     var coords = [];
     var tagName = firstChild.tagName;
     if (tagName === 'gml:pos' || tagName === 'gml:Point') {
@@ -527,7 +529,7 @@ L.GML.Polygon = L.GML.Geometry.extend({
       //there can be exterior and interior, by GML standard and for leaflet its not significant
       var child = element.childNodes[i];
       if (child.nodeType === document.ELEMENT_NODE) {
-        coords.push(this.linearRingParser.parse(child.firstChild));
+        coords.push(this.linearRingParser.parse(child.firstElementChild));
       }
     }
 
@@ -668,6 +670,7 @@ L.GML.FeatureType = L.Class.extend({
 
   initialize: function () {
     this.fields = {};
+    this.id_count = 0;
   },
 
   appendField: function (name, type) {
@@ -693,6 +696,9 @@ L.GML.FeatureType = L.Class.extend({
       properties[propertyName] = fieldParser(node.textContent);
     }
 
+    if( !feature.hasAttribute('gml:id') ) {
+      feature.setAttribute( 'gml:id', 'generated_id_'+this.id_count++ );
+    }
     return {
       properties: properties,
       id: feature.attributes['gml:id'].value
@@ -725,10 +731,14 @@ L.Format.GML = L.Format.Base.extend({
 
     var featureMemberNodes = featureCollection.getElementsByTagNameNS(L.XmlUtil.namespaces.gml, 'featureMember');
     for (var i = 0; i < featureMemberNodes.length; i++) {
-      var feature = featureMemberNodes[i].firstChild;
-      var layer = this.processFeature(feature);
-      if( layer ) {
-        layers.push(layer);
+      var featureKids = featureMemberNodes[i].childNodes;
+      for (var j = 0; j < featureKids.length; j++) {
+        if( featureKids[j].nodeType === document.ELEMENT_NODE) {
+          var layer = this.processFeature(featureKids[j]);
+          if( layer ) {
+            layers.push(layer);
+          }
+        }
       }
     }
 
@@ -780,7 +790,7 @@ L.Format.GML = L.Format.Base.extend({
 
     if( !geometryField ) { return false; }
 
-    return this.parseElement(geometryField.firstChild, this.options);
+    return this.parseElement(geometryField.firstElementChild, this.options);
   }
 });
 
@@ -927,17 +937,13 @@ L.WFS = L.FeatureGroup.extend({
   },
 
   describeFeatureType: function (callback) {
-    var requestData = L.XmlUtil.createElementNS('wfs:DescribeFeatureType', {
-      service: 'WFS',
-      version: this.options.version
-    });
-    requestData.appendChild(L.XmlUtil.createElementNS('TypeName', {}, {value: this.options.typeNSName}));
 
     var that = this;
-    L.Util.request({
-      url: this.options.url,
-      data: L.XmlUtil.serializeXmlDocumentString(requestData),
-      success: function (data) {
+
+    var method = 'GET';
+    var reqOpts = {};
+    reqOpts.url= this.options.url;
+    reqOpts.success= function (data) {
         var xmldoc = L.XmlUtil.parseXml(data);
         var featureInfo = xmldoc.documentElement;
         that.readFormat.setFeatureDescription(featureInfo);
@@ -945,8 +951,28 @@ L.WFS = L.FeatureGroup.extend({
         if (typeof(callback) === 'function') {
           callback();
         }
-      }
-    });
+      };
+
+    if( method == 'POST' ) {
+      reqOpts.method = 'POST';
+      var requestData = L.XmlUtil.createElementNS('wfs:DescribeFeatureType', {
+        service: 'WFS',
+        version: this.options.version
+      });
+      requestData.appendChild(L.XmlUtil.createElementNS('TypeName', {}, {value: this.options.typeNSName}));
+      reqOpts.data = L.XmlUtil.serializeXmlDocumentString(requestData);
+    } else { 
+      // GET
+      reqOpts.method = 'GET';
+      reqOpts.params = {
+        service: 'WFS',
+        version: this.options.version,
+        request: "DescribeFeatureType",
+        typeName: this.options.typeNSName,
+      };
+    }
+
+    L.Util.request(reqOpts);
   },
 
   getFeature: function (filter) {
@@ -970,11 +996,13 @@ L.WFS = L.FeatureGroup.extend({
   },
 
   loadFeatures: function (filter) {
+
     var that = this;
-    L.Util.request({
-      url: this.options.url,
-      data: L.XmlUtil.serializeXmlDocumentString(that.getFeature(filter)),
-      success: function (data) {
+
+    var method = 'GET';
+    var reqOpts = {}
+    reqOpts.url= this.options.url;
+    reqOpts.success= function (data) {
         var layers = that.readFormat.responseToLayers(data,
           {
             coordsToLatLng: that.options.coordsToLatLng,
@@ -989,8 +1017,25 @@ L.WFS = L.FeatureGroup.extend({
         that.fire('load');
 
         return that;
-      }
-    });
+      };
+
+    if( method == 'POST' ) {
+      reqOpts.method = 'POST';
+      var requestData = that.getFeature(filter);
+      reqOpts.data = L.XmlUtil.serializeXmlDocumentString(requestData);
+    } else { 
+      // GET
+      reqOpts.method = 'GET';
+      reqOpts.params = {
+        service: 'WFS',
+        version: this.options.version,
+        request: 'GetFeature',
+        typeName: this.options.typeNSName,
+        srsName: this.options.srsName
+      };
+    }
+
+    L.Util.request(reqOpts);
   }
 });
 

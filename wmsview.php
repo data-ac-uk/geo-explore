@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>GEOPAINT</title>
+  <title>WMS Viewer</title>
   <link rel="stylesheet" href="leaflet.css" />
   <link rel="stylesheet" type="text/css" media="all" href="style.css" />
   <script src="leaflet.js"></script>
@@ -33,12 +33,12 @@ $(document).ready(function(){
 		maxZoom: 18
     }).addTo(map);
 
-var wmsLayer = L.tileLayer.wms('<?php print $_GET['endpoint']; ?>', {
-    layers: '<?php print $_GET['layer']; ?>', 
-    format: 'image/png',
-    opacity: 1,
-    transparent: true
-}).addTo(map);
+    var wmsLayer = L.tileLayer.wms('<?php print $_GET['endpoint']; ?>', {
+        layers: '<?php print $_GET['layer']; ?>', 
+        format: 'image/png',
+        opacity: 1,
+        transparent: true
+    }).addTo(map);
 
 
 });

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>GEOPAINT</title>
+  <title>WFS View</title>
   <link rel="stylesheet" href="leaflet.css" />
   <link rel="stylesheet" type="text/css" media="all" href="style.css" />
   <script src="leaflet.js"></script>
@@ -34,24 +34,22 @@ $(document).ready(function(){
 		attribution: 'Aerial photography &copy; Hampshire County Council',
 		maxZoom: 19
     }).addTo(map);
-
-var epsg27700 = new L.Proj.CRS("EPSG:27700","+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 +units=m +no_defs");
-
-var wfst = new L.WFST({
-    url: 'proxy.php?endpoint=<?php print urlencode($_GET['endpoint']); ?>',
-    typeNS: '<?php print $_GET['namespace']; ?>',
-    typeName: '<?php print $_GET['term']; ?>',
-    geometryFieldGuess: true,
-    crs: epsg27700,
-    style: {
-        color: 'blue',
-        weight: 2
-    }
-}).addTo(map).once('load', function () {
-            map.fitBounds(wfst);
-});
-
-
+    
+    var epsg27700 = new L.Proj.CRS("EPSG:27700","+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 +units=m +no_defs");
+    
+    var wfst = new L.WFST({
+        url: 'proxy-get.php?endpoint=<?php print urlencode($_GET['endpoint']); ?>',
+        typeNS: '<?php print $_GET['namespace']; ?>',
+        typeName: '<?php print $_GET['term']; ?>',
+        geometryFieldGuess: true,
+        crs: epsg27700,
+        style: {
+            color: 'blue',
+            weight: 2
+        }
+    }).addTo(map).once('load', function () {
+                map.fitBounds(wfst);
+    });
 
 
 });

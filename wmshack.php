@@ -1,22 +1,24 @@
 <?php
-$url = @$_GET['url'];
+$url = @trim($_GET['url']);
 
 if( !$url ) { print "<form><input name='url' style='width:80%'> <label>(<input name='debug' type='checkbox' value='1' > debug?) <input type='submit' /></form"; exit; }
 
 $dom = new DOMDocument('1.0','UTF-8');
 if (!$dom->load($url))
 {
-   echo ("Error in XML document");
-exit;
+    echo ("Error in XML document");
+    exit;
 }
 $data = dom_to_array( $dom );
 //header( "Content-type: text/plain" );
 $endpoint = preg_replace( "/\?.*$/", "", $url );
 $get_endpoint = $endpoint;
 $post_endpoint = $endpoint;
-
+$version;
+print "<h1>$endpoint</h1>";
 if( @$data["WMS_Capabilities"] )
 {
+    $version = $data['WMS_Capabilities']['version'];
     print "<table border='1' style='width:100%'>";
     print "<tr><th></th><th>Name</th><th>Title</th><th>Abstract</th><th>Link</th></tr>";
     show_wms_layer( $data['WMS_Capabilities']['Capability']['Layer'], $get_endpoint );
@@ -24,6 +26,7 @@ if( @$data["WMS_Capabilities"] )
 }
 elseif( @$data["WFS_Capabilities"] )
 {
+    $version = $data['WFS_Capabilities']['version'];
     $om = $data["WFS_Capabilities"]["OperationsMetadata"]["Operation"];
    
     $oformats = array();
@@ -47,7 +50,7 @@ elseif( @$data["WFS_Capabilities"] )
             
     print "<table border='1' style='width:100%'>";
     print "<tr><th></th><th>Name</th><th>Title</th><th>Abstract</th><th>Link</th></tr>";
-    show_ftlist( $data['WFS_Capabilities']['FeatureTypeList'], $get_endpoint,$post_endpoint,$oformats );
+    show_ftlist( $data['WFS_Capabilities']['FeatureTypeList'], $get_endpoint,$post_endpoint,$version,$oformats );
     print "</table>";
 }
 else 
@@ -64,7 +67,7 @@ function ensureList($v) {
 }
 
 
-function show_ftlist( $ftlist, $get_endpoint, $post_endpoint, $oformats, $depth = 0 ) {
+function show_ftlist( $ftlist, $get_endpoint, $post_endpoint, $version, $oformats, $depth = 0 ) {
     if( @$_GET['debug'] ) { print "<tr><td colspan='4'><div style='width: 500px; overflow-x:auto;' ><pre>".print_r( $ftlist, true )."</pre></div></td></tr>"; }
     $list = ensureList( $ftlist["FeatureType"] );
 
@@ -86,9 +89,12 @@ if( @is_array( $ft["Abstract"] ) ) { $ft["Abstract"] = print_r( $ft["Abstract"],
             if( preg_match( "/:/", $ft["Name"] ) ) {
                 list( $ns, $term ) = preg_split( "/:/", $ft["Name"] );
             }
-            $l []= "<a href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View</a>";
+            $l[]= "<a href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View</a>";
+            $url = add_params($get_endpoint,"version=$version&service=wfs&request=GetFeature&typeName=".$ft["Name"]);
+            $l[]= "<a href='$url'>Default</a>";
             foreach( $oformats as $oformat ) {
-                $l[]= "<a href='$get_endpoint?service=wfs&request=GetFeature&typeName=".$ft["Name"]."&outputFormat=$oformat'>$oformat</a>";
+                $url = add_params($get_endpoint,"version=$version&service=wfs&request=GetFeature&typeName=".$ft["Name"]."&outputFormat=$oformat");
+                $l[]= "<a href='$url'>$oformat</a>";
             }
             print join( ", ", $l );
         }
@@ -97,6 +103,10 @@ if( @is_array( $ft["Abstract"] ) ) { $ft["Abstract"] = print_r( $ft["Abstract"],
     }
 }
 
+function add_params( $url, $params ) {
+    if( preg_match( "/\?/", $url ) ) { return "$url&$params"; }
+    return "$url?$params";
+}
 
 
 
