@@ -172,6 +172,7 @@ error_reporting(E_ALL);
 						
 						if( @$data["WMS_Capabilities"] )
 						{
+							RenderXMLBlock( "Service Information", @$data["WFS_Capabilities"]["Service"] );
 							$version = $data['WMS_Capabilities']['version'];
 							if ($debug)
 							{
