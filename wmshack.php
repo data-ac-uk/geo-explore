@@ -61,109 +61,140 @@ error_reporting(E_ALL);
 			<?php
 				if (isset($url))
 				{
-					?>
-					<div class="row">						
-						<div class="col-lg-12">
-							<h2>Available Datsets</h2>
-							<?php
-								$dom = new DOMDocument('1.0','UTF-8');
-			
-								if (!$dom->load($url))
-								{
-									?>
-									<div class="alert alert-warning">									
-										<strong>Error Processing Data!</strong> There was an error retrieving or processing the data.
-									</div>
-									<?php
-								}
-								else 
-								{
-									$data = dom_to_array( $dom );
-									//header( "Content-type: text/plain" );
-									$endpoint = preg_replace( "/\?.*$/", "", $url );
-									$get_endpoint = $endpoint;
-									$post_endpoint = $endpoint;
-									
-									if( @$data["WMS_Capabilities"] )
-									{
-										?>
-										<table class=table table-striped>
-											<thead>
-												<tr>
-													<th colspan="2">Name</th>
-													<th>Title</th>
-													<th>Link</th>
-												</tr>
-											</thead>
-											<tbody>
-											<?php
-												show_wms_layer( $data['WMS_Capabilities']['Capability']['Layer'], $get_endpoint ); 
-											?>
-											</tbody>										
-										</table>
-										<?php									    
-									}		
-									elseif( @$data["WFS_Capabilities"] )
-									{
-									    $om = $data["WFS_Capabilities"]["OperationsMetadata"]["Operation"];
-									   
-									    $oformats = array();
-									    foreach( $om as $o ) {
-									        if( $o["name"] == "GetFeature" ) {
-									            foreach( $o["Parameter"] as $p ) {
-									                if( $p["name"] == "outputFormat" ) {
-									                    if( @$p["Value"] ) {
-									                      $oformats = ensureList($p["Value"]);
-									                    } elseif( @$p["AllowedValues"]["Value"] ) {
-									                      $oformats = ensureList($p["AllowedValues"]["Value"]);
-									                    }
-									                }
-									            } 
-									            $get_endpoint = @$o["DCP"]["HTTP"]["Get"]["href"];
-									            $post_endpoint = @$o["DCP"]["HTTP"]["Post"]["href"];
-									        }
-									    }
-									
-									#<ows:DCP><ows:HTTP><ows:Get xlink:href="http://inspire.misoportal.com:80/geoserver/gateshead_council_conservationareas/wfs"/><ows:Post xlink:href="http://inspire.misoportal.com:80/geoserver/gateshead_council_conservationareas/wfs"/></ows:HTTP></ows:DCP>
-									    ?>        
-									    <table class="table table-striped">
-											<thead>
-												<tr>
-													<th colspan="2">Name</th>
-													<th>Title</th>
-													<th>Abstract</th>
-													<th>Link</th>
-												</tr>
-											</thead>
-											<tbody>
-											<?php
-												show_ftlist( $data['WFS_Capabilities']['FeatureTypeList'], $get_endpoint,$post_endpoint,$oformats ); 
-											?>
-											</tbody>										
-										</table>
-									    <?php
-									}
-									else 
-									{
-										?>
-										<div class="alert alert-warning">									
-											<strong>Not sure about this file!</strong>
-											<pre>
-											<?php print_r( $data ); ?>
-											</pre> 
-										</div>
-										<?php									    
-									}
-								}						
-								?>					
-						</div>					
-					</div>
-					<?php
+					RenderResults($url);
 				}
 			?>
 		</div>
 	</body>
 </html>
+
+<?php
+
+	function RenderAlertForErrorLoadingData()
+	{
+		?>
+		<div class="alert alert-warning">									
+			<strong>Error Getting Data.</strong> 
+			An error occurred either when retrieving the data, or parsing it.
+		</div>
+		<?php
+	}
+	
+	function RenderWmsData($data, $get_endpoint)
+	{
+		?>
+		<table class=table table-striped>
+			<thead>
+				<tr>
+					<th colspan="2">Name</th>
+					<th>Title</th>
+					<th>Link</th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php
+				show_wms_layer( $data['WMS_Capabilities']['Capability']['Layer'], $get_endpoint ); 
+			?>
+			</tbody>										
+		</table>
+		<?php
+	}	
+	
+	function RenderWfsData($data, $get_endpoint, $post_endpoint, $oformats)
+	{
+		?>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th colspan="2">Name</th>
+					<th>Title</th>
+					<th>Abstract</th>
+					<th>Link</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php
+				show_ftlist( $data['WFS_Capabilities']['FeatureTypeList'], $get_endpoint,$post_endpoint,$oformats ); 
+				?>
+			</tbody>										
+		</table>
+		<?php
+	}
+	
+	function RenderAlertForIffyData($data)
+	{
+		?>
+		<div class="alert alert-warning">									
+			<strong>Not sure about this file!</strong>
+			<pre>
+			<?php print_r( $data ); ?>
+			</pre> 
+		</div>
+		<?php
+	}
+	
+	function RenderResults($url)
+	{
+		?>
+		<div class="row">						
+			<div class="col-lg-12">
+				<h2>Available Datsets</h2>
+				<?php
+					$dom = new DOMDocument('1.0','UTF-8');
+
+					if (!$dom->load($url))
+					{
+						RenderAlertForErrorLoadingData();
+					}
+					else 
+					{
+						$data = dom_to_array( $dom );
+						//header( "Content-type: text/plain" );
+						$endpoint = preg_replace( "/\?.*$/", "", $url );
+						$get_endpoint = $endpoint;
+						$post_endpoint = $endpoint;
+						
+						if( @$data["WMS_Capabilities"] )
+						{
+							RenderWmsData($data, $get_endpoint);									    
+						}		
+						elseif( @$data["WFS_Capabilities"] )
+						{
+						    $om = $data["WFS_Capabilities"]["OperationsMetadata"]["Operation"];
+						   
+						    $oformats = array();
+						    foreach( $om as $o ) {
+						        if( $o["name"] == "GetFeature" ) {
+						            foreach( $o["Parameter"] as $p ) {
+						                if( $p["name"] == "outputFormat" ) {
+						                    if( @$p["Value"] ) {
+						                      $oformats = ensureList($p["Value"]);
+						                    } elseif( @$p["AllowedValues"]["Value"] ) {
+						                      $oformats = ensureList($p["AllowedValues"]["Value"]);
+						                    }
+						                }
+						            } 
+						            $get_endpoint = @$o["DCP"]["HTTP"]["Get"]["href"];
+						            $post_endpoint = @$o["DCP"]["HTTP"]["Post"]["href"];
+						        }
+						    }
+						
+							 #<ows:DCP><ows:HTTP><ows:Get xlink:href="http://inspire.misoportal.com:80/geoserver/gateshead_council_conservationareas/wfs"/><ows:Post xlink:href="http://inspire.misoportal.com:80/geoserver/gateshead_council_conservationareas/wfs"/></ows:HTTP></ows:DCP>
+							 RenderWfsData($data, $get_endpoint, $post_endpoint, $oformats);
+						}
+						else 
+						{
+							RenderAlertForIffyData($data);				    
+						}
+					}						
+					?>					
+			</div>					
+		</div>
+
+		<?php
+	}
+
+?>
 
 <?php
 
@@ -205,7 +236,6 @@ error_reporting(E_ALL);
 		</div>
 		<?php	
 	}
-	
 
 ?>
 
