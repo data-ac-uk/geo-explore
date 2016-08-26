@@ -32,6 +32,7 @@ $options = [
 ];
 $context = stream_context_create($options);
 libxml_set_streams_context($context);
+$processedlists = array();
 
 foreach ($urls as $url) {
 	$dom = new DOMDocument('1.0','UTF-8');
@@ -71,31 +72,38 @@ foreach ($urls as $url) {
 		error_log("Unrecognised file format for $url");
     		continue;
 	}
-	header( "Content-type: text/".strtolower($format) );
-	switch ($format) {
-        	case "JSON":
-                	echo json_encode($processedlist);
-	                break;
-        	case "CSV":
-	        case "TSV":
-        	        $stdout = fopen('php://output','w');
-                	foreach( $processedlist as $line ){
-                        	if ($format == "CSV") {
-                                	fputcsv($stdout, $line);
-                        	}
-	                        else {
-        	                        fputcsv($stdout, $line, "\t");
-                	        }	
-				if (preg_match('/Win/', $_SERVER['HTTP_USER_AGENT'])) {		
-					print "\r\n";
-				}
-                	}
-                	fflush($stdout);
-                	break;
-	        default:
-        	        echo json_encode($processedlist);
-	}
+	$processedlists[] = $processedlist;
 }
+
+header( "Content-type: text/".strtolower($format) );
+switch ($format) {
+	case "JSON":
+		if (sizeof($processedlists) == 1) echo json_encode($processedlists[0]);
+        	else echo json_encode($processedlists);
+                break;
+/*      case "CSV":
+        case "TSV":
+        	$stdout = fopen('php://output','w');
+                foreach( $processedlist as $line ){
+                if ($format == "CSV") {
+                	fputcsv($stdout, $line);
+                }
+                else {
+                        fputcsv($stdout, $line, "\t");
+                     }
+                     if (preg_match('/Win/', $_SERVER['HTTP_USER_AGENT'])) {
+                        print "\r\n";
+                     }
+                }
+                fflush($stdout);
+                break;
+*/
+        default:
+        if (sizeof($processedlists) == 1) echo json_encode($processedlists[0]);
+        else echo json_encode($processedlists);
+	
+}
+
 exit;
 
 function ensureList($v) {
