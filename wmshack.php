@@ -25,15 +25,15 @@ error_reporting(E_ALL);
 		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 		<title>Geo-Explorer</title>
 		
+		<!-- jQuery -->	 
+		<script src="jquery.min.js"></script>		
+		
 		<!-- Bootstrap -->
 		<link href="styles/bootstrap.min.css" rel="stylesheet">
-		<script src="scripts/bootstrap.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
 		<!-- Leaflet -->
 		<link rel="stylesheet" href="leaflet.css" />
 		<script src="leaflet.js"></script>
-		
-		<!-- jQuery -->	 
-		<script src="jquery.min.js"></script>
 		 
 		<!-- Misc -->
 		<script src="script.js"></script>
@@ -50,7 +50,7 @@ error_reporting(E_ALL);
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-12">
-					<h1>Geo-Explorer</h2>
+					<h1>Geo-Explorer</h2>							
 				</div>
 			</div>
 						
@@ -292,7 +292,7 @@ error_reporting(E_ALL);
 		print "<td>";
 		if (@$layer["Name"])
 		{
-			print "<a href='wmsview.php?endpoint=$endpoint&layer=" . $layer["Name"] . "'>View</a>";
+			print "<a class=\"btn btn-sm btn-primary\" href='wmsview.php?endpoint=$endpoint&layer=" . $layer["Name"] . "'>View</a>";
 		}
 	
 		print "</td>";
@@ -300,7 +300,7 @@ error_reporting(E_ALL);
 		if (@$layer["Layer"])
 		{
 			print "<tr><td colspan='4'>";
-			print "<table border='1' style='width:100%'>";
+			print "<table class=\"table table-striped\" border='1' style='width:100%'>";
 			print "<tr><th></th><th>Name</th><th>Title</th><th>Abstract</th><th>Link</th></tr>";
 			$list = ensureList($layer["Layer"]);
 			foreach($list as $sublayer)
@@ -348,11 +348,26 @@ error_reporting(E_ALL);
          if( preg_match( "/:/", $ft["Name"] ) ) {
              list( $ns, $term ) = preg_split( "/:/", $ft["Name"] );
          }
-         $l []= "<a href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View</a>";
-         foreach( $oformats as $oformat ) {
-             $l[]= "<a href='$get_endpoint?service=wfs&request=GetFeature&typeName=".$ft["Name"]."&outputFormat=$oformat'>$oformat</a>";
-         }
-         print join( ", ", $l );
+         print "<a class=\"btn btn-sm btn-primary\" href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>Map</a>";
+         
+			?>			
+			<div class="btn-group">
+			  <a href="#" class="btn btn-sm btn-default">Data</a>
+			  <a aria-expanded="false" href="#" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
+			  <ul class="dropdown-menu">			    
+			    <?php
+				  	foreach( $oformats as $oformat ) 
+				  	{
+				  		?>
+				  		<li><a href="<?php print "$get_endpoint?service=wfs&request=GetFeature&typeName=".$ft["Name"]."&outputFormat=$oformat" ?>"><?php print $oformat ?></a></li>
+				  		<?php		             
+		         }
+			  	 ?>
+			  </ul>
+			</div>			  	 	
+		    
+			<?php      
+         
      }
      print "</td>";
      print "</tr>";
