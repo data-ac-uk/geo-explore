@@ -926,7 +926,8 @@ L.WFS = L.FeatureGroup.extend({
 
     var that = this;
 
-    if( false ) {
+    // would be nice if we could skip Description step
+    if( true ) {
       this.describeFeatureType(function () {
         if (that.options.showExisting) {
           that.loadFeatures();
