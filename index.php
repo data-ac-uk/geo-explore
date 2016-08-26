@@ -172,7 +172,7 @@ error_reporting(E_ALL);
 						
 						if( @$data["WMS_Capabilities"] )
 						{
-							RenderInfoBlock( "wms-info", "WMS Information", '<p>What is WMS?</p> from Wikipedia: <blockquote>A Web Map Service (WMS) is a standard protocol for serving (over the Internet) georeferenced map images which a map server generates using data from a GIS database. The Open Geospatial Consortium developed the specification and first published it in 1999.</blockquote> Or check the <a href="http://www.opengeospatial.org/standards/wms">specs</a> ');							
+							RenderInfoBlock( "wms-info", "WMS Information", '<p>What is WMS?</p> from Wikipedia: <blockquote>A Web Map Service (WMS) is a standard protocol for serving (over the Internet) georeferenced map images which a map server generates using data from a GIS database. The Open Geospatial Consortium developed the specification and first published it in 1999.</blockquote> Or check the <a href='http://www.opengeospatial.org/standards/wms'>specs</a> ');							
 							RenderXMLBlock( "service-info", "Service Information", @$data["WFS_Capabilities"]["Service"] );
 							$version = $data['WMS_Capabilities']['version'];
 							if ($debug)
@@ -183,7 +183,7 @@ error_reporting(E_ALL);
 						}		
 						elseif( @$data["WFS_Capabilities"] )
 						{
-							RenderInfoBlock( "wfs-info", "WFS Information", '<p>What is WFS?</p> from Wikipedia: <blockquote>the Open Geospatial Consortium Web Feature Service Interface Standard (WFS) provides an interface allowing requests for geographical features across the web using platform-independent calls.</blockquote> Or check the <a href="http://www.opengeospatial.org/standards/wfs">specs</a>' );						
+							RenderInfoBlock( "wfs-info", "WFS Information", '<p>What is WFS?</p> from Wikipedia: <blockquote>the Open Geospatial Consortium Web Feature Service Interface Standard (WFS) provides an interface allowing requests for geographical features across the web using platform-independent calls.</blockquote> Or check the <a href='http://www.opengeospatial.org/standards/wfs'>specs</a>' );						
 							RenderXMLBlock( "service-id", "Service Identification", @$data["WFS_Capabilities"]["ServiceIdentification"] );
 							RenderXMLBlock( "service-provider", "Service Provider", @$data["WFS_Capabilities"]["ServiceProvider"] );
 							 $version = $data['WFS_Capabilities']['version'];
