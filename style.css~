@@ -1,7 +1,6 @@
-.btn-group {
-  white-space: nowrap;
-  overflow: hidden;
-}
+.btn-group { width: 7em; }
+
+.btn + .btn-group { margin-top: 0.5em; }
 
 html, body {
   height:100%;

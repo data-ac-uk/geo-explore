@@ -348,11 +348,11 @@ error_reporting(E_ALL);
          if( preg_match( "/:/", $ft["Name"] ) ) {
              list( $ns, $term ) = preg_split( "/:/", $ft["Name"] );
          }
-         print "<a class=\"btn btn-sm btn-primary\" href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>Map</a>";
+         print "<a class=\"btn btn-sm btn-primary\" href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View Map</a>";
          
-			?>			
+			?>						
 			<div class="btn-group">
-			  <a href="#" class="btn btn-sm btn-default">Data</a>
+			  <a href="#" class="btn btn-sm btn-default">View Data</a>
 			  <a aria-expanded="false" href="#" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
 			  <ul class="dropdown-menu">			    
 			    <?php
