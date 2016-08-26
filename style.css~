@@ -1,7 +1,7 @@
-.btn-group { width: 8em; }
+.btn-group { width: 9em; }
 
-/*.btn ~ .btn { margin-top: 0.5em; }*/
-.btn ~.btn { margin-top: 0.5em; } 
+.btn ~.btn, .btn ~.btn-group { margin-top: 0.5em; }
+ 
 .btn-group > .btn { margin-top: 0em; }
 
 

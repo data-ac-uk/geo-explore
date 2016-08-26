@@ -1,11 +1,7 @@
 <?php
-<<<<<<< HEAD
-$url = @trim($_GET['url']);
-=======
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
->>>>>>> styling
 
 	$url = null;
 	$debug = false;
@@ -65,119 +61,25 @@ error_reporting(E_ALL);
 			<?php
 				if (isset($url))
 				{
-					RenderResults($url);
+					RenderResults($url, $debug);
 				}
 			?>
 		</div>
 	</body>
 </html>
 
-<<<<<<< HEAD
-$dom = new DOMDocument('1.0','UTF-8');
-if (!$dom->load($url))
-{
-    echo ("Error in XML document");
-    exit;
-}
-$data = dom_to_array( $dom );
-//header( "Content-type: text/plain" );
-$endpoint = preg_replace( "/\?.*$/", "", $url );
-$get_endpoint = $endpoint;
-$post_endpoint = $endpoint;
-$version;
-print "<h1>$endpoint</h1>";
-if( @$data["WMS_Capabilities"] )
-{
-    $version = $data['WMS_Capabilities']['version'];
-    print "<table border='1' style='width:100%'>";
-    print "<tr><th></th><th>Name</th><th>Title</th><th>Abstract</th><th>Link</th></tr>";
-    show_wms_layer( $data['WMS_Capabilities']['Capability']['Layer'], $get_endpoint );
-    print "</table>";
-}
-elseif( @$data["WFS_Capabilities"] )
-{
-    $version = $data['WFS_Capabilities']['version'];
-    $om = $data["WFS_Capabilities"]["OperationsMetadata"]["Operation"];
-   
-    $oformats = array();
-    foreach( $om as $o ) {
-        if( $o["name"] == "GetFeature" ) {
-            foreach( $o["Parameter"] as $p ) {
-                if( $p["name"] == "outputFormat" ) {
-                    if( @$p["Value"] ) {
-                      $oformats = ensureList($p["Value"]);
-                    } elseif( @$p["AllowedValues"]["Value"] ) {
-                      $oformats = ensureList($p["AllowedValues"]["Value"]);
-                    }
-                }
-            } 
-            $get_endpoint = @$o["DCP"]["HTTP"]["Get"]["href"];
-            $post_endpoint = @$o["DCP"]["HTTP"]["Post"]["href"];
-        }
-    }
+<?php
 
-#<ows:DCP><ows:HTTP><ows:Get xlink:href="http://inspire.misoportal.com:80/geoserver/gateshead_council_conservationareas/wfs"/><ows:Post xlink:href="http://inspire.misoportal.com:80/geoserver/gateshead_council_conservationareas/wfs"/></ows:HTTP></ows:DCP>
-            
-    print "<table border='1' style='width:100%'>";
-    print "<tr><th></th><th>Name</th><th>Title</th><th>Abstract</th><th>Link</th></tr>";
-    show_ftlist( $data['WFS_Capabilities']['FeatureTypeList'], $get_endpoint,$post_endpoint,$version,$oformats );
-    print "</table>";
-}
-else 
-{
-    print "no sure about this file!";
-    print "<pre>";
-    print_r( $data );
-}
-exit;
+	function RenderDebugOutput($debugInfo)
+	{
+		?>
+		<h2>Debug Information</h2>
+		<pre><?php print_r($debugInfo, false) ?></pre>
+		<?php
+	}
+ 
+?>
 
-function ensureList($v) {
-    if( !is_array($v) || isAssoc($v) ) { return array( $v ); }
-    return $v;
-}
-
-
-function show_ftlist( $ftlist, $get_endpoint, $post_endpoint, $version, $oformats, $depth = 0 ) {
-    if( @$_GET['debug'] ) { print "<tr><td colspan='4'><div style='width: 500px; overflow-x:auto;' ><pre>".print_r( $ftlist, true )."</pre></div></td></tr>"; }
-    $list = ensureList( $ftlist["FeatureType"] );
-
-    foreach( $list as $ft ) {
-if( @is_array( $ft["Abstract"] ) ) { $ft["Abstract"] = print_r( $ft["Abstract"],1 ); }
-        print "<tr>";
-        print "<td>";
-        for( $i=0;$i<$depth;++$i ) { print "&bull;"; }
-        print "</td>";
-        print "<td>".@$ft["Name"]."</td>";
-        print "<td>".@$ft["Title"]."</td>";
-        print "<td>".@$ft["Abstract"]."</td>";
-        
-        print "<td>";
-        if( @$ft["Name"] ) {
-            $l = array();
-            $ns = "";
-            $term = $ft["Name"];
-            if( preg_match( "/:/", $ft["Name"] ) ) {
-                list( $ns, $term ) = preg_split( "/:/", $ft["Name"] );
-            }
-            $l[]= "<a href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View</a>";
-            $url = add_params($get_endpoint,"version=$version&service=wfs&request=GetFeature&typeName=".$ft["Name"]);
-            $l[]= "<a href='$url'>Default</a>";
-            foreach( $oformats as $oformat ) {
-                $url = add_params($get_endpoint,"version=$version&service=wfs&request=GetFeature&typeName=".$ft["Name"]."&outputFormat=$oformat");
-                $l[]= "<a href='$url'>$oformat</a>";
-            }
-            print join( ", ", $l );
-        }
-        print "</td>";
-        print "</tr>";
-    }
-}
-
-function add_params( $url, $params ) {
-    if( preg_match( "/\?/", $url ) ) { return "$url&$params"; }
-    return "$url?$params";
-}
-=======
 <?php
 
 	function RenderAlertForErrorLoadingData()
@@ -204,7 +106,7 @@ function add_params( $url, $params ) {
 				</tr>
 			</thead>
 			<tbody>
-			<?php
+			<?php			
 				show_wms_layer( $data['WMS_Capabilities']['Capability']['Layer'], $get_endpoint, $version ); 
 			?>
 			</tbody>										
@@ -226,7 +128,7 @@ function add_params( $url, $params ) {
 				</tr>
 			</thead>
 			<tbody>
-				<?php
+				<?php				
 				show_ftlist( $data['WFS_Capabilities']['FeatureTypeList'], $get_endpoint, $post_endpoint, $version, $oformats ); 
 				?>
 			</tbody>										
@@ -246,7 +148,7 @@ function add_params( $url, $params ) {
 		<?php
 	}
 	
-	function RenderResults($url)
+	function RenderResults($url, $debug)
 	{
 		?>
 		<div class="row">						
@@ -271,6 +173,10 @@ function add_params( $url, $params ) {
 						if( @$data["WMS_Capabilities"] )
 						{
 							$version = $data['WMS_Capabilities']['version'];
+							if ($debug)
+							{
+								RenderDebugOutput($data['WMS_Capabilities']['Capability']['Layer']);
+							}
 							RenderWmsData($data, $get_endpoint, $version);									    
 						}		
 						elseif( @$data["WFS_Capabilities"] )
@@ -296,6 +202,11 @@ function add_params( $url, $params ) {
 						    }
 						
 							 #<ows:DCP><ows:HTTP><ows:Get xlink:href="http://inspire.misoportal.com:80/geoserver/gateshead_council_conservationareas/wfs"/><ows:Post xlink:href="http://inspire.misoportal.com:80/geoserver/gateshead_council_conservationareas/wfs"/></ows:HTTP></ows:DCP>
+							 
+							if ($debug)
+							{
+								RenderDebugOutput($data);
+							}
 							 RenderWfsData($data, $get_endpoint, $post_endpoint, $version, $oformats);
 						}
 						else 
@@ -306,7 +217,6 @@ function add_params( $url, $params ) {
 					?>					
 			</div>					
 		</div>
->>>>>>> styling
 
 		<?php
 	}
@@ -440,12 +350,7 @@ function add_params( $url, $params ) {
  
 <?php 
 	function show_wms_layer($layer, $endpoint, $version, $depth = 0)
-	{
-		if (@$_GET['debug'])
-		{
-			print "<tr><td colspan='4'><div style='width: 500px; overflow-x:auto;' ><pre>" . print_r($layer, true) . "</pre></div></td></tr>";
-		}
-	
+	{			
 		print "<tr>";
 		print "<td>";		
 		for ($i = 0; $i < $depth; ++$i)
@@ -486,11 +391,7 @@ function add_params( $url, $params ) {
 <?php
 
 	function show_ftlist( $ftlist, $get_endpoint, $post_endpoint, $version, $oformats, $depth = 0 ) {
-    if( @$_GET['debug'] ) 
-    { 
-    	print "<tr><td colspan='4'><div style='width: 500px; overflow-x:auto;' ><pre>".print_r( $ftlist, true )."</pre></div></td></tr>"; 
- 	 }
-    
+        
     $list = ensureList( $ftlist["FeatureType"] );
 
     foreach( $list as $ft ) 
@@ -516,17 +417,19 @@ function add_params( $url, $params ) {
          if( preg_match( "/:/", $ft["Name"] ) ) {
              list( $ns, $term ) = preg_split( "/:/", $ft["Name"] );
          }
-         print "<a class=\"btn btn-sm btn-primary\" href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View Map</a>";
-         
-         $linkUrl = add_params($get_endpoint,"version=$version&service=wfs&request=GetFeature&typeName=".$ft["Name"]);
-			print "<a href=\"$linkUrl\" class=\"btn btn-sm btn-default\">Default</a>"
+         print "<a class=\"btn btn-sm btn-primary\" href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View Map</a>";                  
          
 			?>						
 			<div class="btn-group">
-			  <a href="#" class="btn btn-sm btn-default">View Data</a>
+			  <a href="#" class="btn btn-sm btn-default">Available</a>
 			  <a aria-expanded="false" href="#" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
-			  <ul class="dropdown-menu">			    
+			  <ul class="dropdown-menu">					  	    
 			    <?php
+				   $linkUrl = add_params($get_endpoint,"version=$version&service=wfs&request=GetFeature&typeName=".$ft["Name"]);
+					?>
+					<li><a href="<?php print $linkUrl ?>">Default Data Format</a></li>
+					<li class="divider"></li>					
+					<?php
 				  	foreach( $oformats as $oformat ) 
 				  	{
 						$linkUrl = add_params($get_endpoint,"version=$version&service=wfs&request=GetFeature&typeName=".$ft["Name"]."&outputFormat=$oformat");				  		

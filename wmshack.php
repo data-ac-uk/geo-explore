@@ -61,12 +61,24 @@ error_reporting(E_ALL);
 			<?php
 				if (isset($url))
 				{
-					RenderResults($url);
+					RenderResults($url, $debug);
 				}
 			?>
 		</div>
 	</body>
 </html>
+
+<?php
+
+	function RenderDebugOutput($debugInfo)
+	{
+		?>
+		<h2>Debug Information</h2>
+		<pre><?php print_r($debugInfo, false) ?></pre>
+		<?php
+	}
+ 
+?>
 
 <?php
 
@@ -94,7 +106,7 @@ error_reporting(E_ALL);
 				</tr>
 			</thead>
 			<tbody>
-			<?php
+			<?php			
 				show_wms_layer( $data['WMS_Capabilities']['Capability']['Layer'], $get_endpoint, $version ); 
 			?>
 			</tbody>										
@@ -116,7 +128,7 @@ error_reporting(E_ALL);
 				</tr>
 			</thead>
 			<tbody>
-				<?php
+				<?php				
 				show_ftlist( $data['WFS_Capabilities']['FeatureTypeList'], $get_endpoint, $post_endpoint, $version, $oformats ); 
 				?>
 			</tbody>										
@@ -136,7 +148,7 @@ error_reporting(E_ALL);
 		<?php
 	}
 	
-	function RenderResults($url)
+	function RenderResults($url, $debug)
 	{
 		?>
 		<div class="row">						
@@ -161,6 +173,10 @@ error_reporting(E_ALL);
 						if( @$data["WMS_Capabilities"] )
 						{
 							$version = $data['WMS_Capabilities']['version'];
+							if ($debug)
+							{
+								RenderDebugOutput($data['WMS_Capabilities']['Capability']['Layer']);
+							}
 							RenderWmsData($data, $get_endpoint, $version);									    
 						}		
 						elseif( @$data["WFS_Capabilities"] )
@@ -186,6 +202,11 @@ error_reporting(E_ALL);
 						    }
 						
 							 #<ows:DCP><ows:HTTP><ows:Get xlink:href="http://inspire.misoportal.com:80/geoserver/gateshead_council_conservationareas/wfs"/><ows:Post xlink:href="http://inspire.misoportal.com:80/geoserver/gateshead_council_conservationareas/wfs"/></ows:HTTP></ows:DCP>
+							 
+							if ($debug)
+							{
+								RenderDebugOutput($data);
+							}
 							 RenderWfsData($data, $get_endpoint, $post_endpoint, $version, $oformats);
 						}
 						else 
@@ -329,12 +350,7 @@ error_reporting(E_ALL);
  
 <?php 
 	function show_wms_layer($layer, $endpoint, $version, $depth = 0)
-	{
-		if (@$_GET['debug'])
-		{
-			print "<tr><td colspan='4'><div style='width: 500px; overflow-x:auto;' ><pre>" . print_r($layer, true) . "</pre></div></td></tr>";
-		}
-	
+	{			
 		print "<tr>";
 		print "<td>";		
 		for ($i = 0; $i < $depth; ++$i)
@@ -375,11 +391,7 @@ error_reporting(E_ALL);
 <?php
 
 	function show_ftlist( $ftlist, $get_endpoint, $post_endpoint, $version, $oformats, $depth = 0 ) {
-    if( @$_GET['debug'] ) 
-    { 
-    	print "<tr><td colspan='4'><div style='width: 500px; overflow-x:auto;' ><pre>".print_r( $ftlist, true )."</pre></div></td></tr>"; 
- 	 }
-    
+        
     $list = ensureList( $ftlist["FeatureType"] );
 
     foreach( $list as $ft ) 
@@ -405,17 +417,19 @@ error_reporting(E_ALL);
          if( preg_match( "/:/", $ft["Name"] ) ) {
              list( $ns, $term ) = preg_split( "/:/", $ft["Name"] );
          }
-         print "<a class=\"btn btn-sm btn-primary\" href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View Map</a>";
-         
-         $linkUrl = add_params($get_endpoint,"version=$version&service=wfs&request=GetFeature&typeName=".$ft["Name"]);
-			print "<a href=\"$linkUrl\" class=\"btn btn-sm btn-default\">Default</a>"
+         print "<a class=\"btn btn-sm btn-primary\" href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View Map</a>";                  
          
 			?>						
 			<div class="btn-group">
 			  <a href="#" class="btn btn-sm btn-default">View Data</a>
 			  <a aria-expanded="false" href="#" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
-			  <ul class="dropdown-menu">			    
+			  <ul class="dropdown-menu">					  	    
 			    <?php
+				   $linkUrl = add_params($get_endpoint,"version=$version&service=wfs&request=GetFeature&typeName=".$ft["Name"]);
+					?>
+					<li><a href="<?php print $linkUrl ?>">Default Data Format</a></li>
+					<li class="divider"></li>					
+					<?php
 				  	foreach( $oformats as $oformat ) 
 				  	{
 						$linkUrl = add_params($get_endpoint,"version=$version&service=wfs&request=GetFeature&typeName=".$ft["Name"]."&outputFormat=$oformat");				  		
