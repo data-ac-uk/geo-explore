@@ -172,6 +172,8 @@ error_reporting(E_ALL);
 						
 						if( @$data["WMS_Capabilities"] )
 						{
+							RenderInfoBlock( "WMS Information", "<p>What is WMS? Unfortunately nobody knows yet.</p>" );
+							RenderXMLBlock( "service-info", "Service Information", @$data["WFS_Capabilities"]["Service"] );
 							$version = $data['WMS_Capabilities']['version'];
 							if ($debug)
 							{
@@ -181,6 +183,9 @@ error_reporting(E_ALL);
 						}		
 						elseif( @$data["WFS_Capabilities"] )
 						{
+							RenderInfoBlock( "WFS Information", "<p>What is WFS? Unfortunately nobody knows yet.</p>" );
+							RenderXMLBlock( "service-id", "Service Identification", @$data["WFS_Capabilities"]["ServiceIdentification"] );
+							RenderXMLBlock( "service-provider", "Service Provider", @$data["WFS_Capabilities"]["ServiceProvider"] );
 							 $version = $data['WFS_Capabilities']['version'];
 						    $om = $data["WFS_Capabilities"]["OperationsMetadata"]["Operation"];
 						   
@@ -421,7 +426,7 @@ error_reporting(E_ALL);
          
 			?>						
 			<div class="btn-group">
-			  <a href="#" class="btn btn-sm btn-default">Available</a>
+			  <a href="#" class="btn btn-sm btn-default">View Data</a>
 			  <a aria-expanded="false" href="#" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
 			  <ul class="dropdown-menu">					  	    
 			    <?php
@@ -450,5 +455,40 @@ error_reporting(E_ALL);
 }
 
 
+function RenderInfoBlock( $title, $html ) {
+	print "<h1>$title</h1>";
+	print $html;
+}
+function RenderXMLBlock( $id, $title, $data ) {
+	$list = tree2pairs( $data );
+        if( !count($list) ) { return; }
+	
+	print "<h1>$title <small><a href=\"#\" data-toggle=\"collapse\" data-target=\"#".$id."-expandable\">show</a></small></h1>";
+	print "<div id=\"".$id."-expandable\" class=\"collapse\">";
+	print "<table class=\"table table-condensed\">";
+        foreach( $list as $row ) {
+		print "<tr>";
+		print "<td>".$row[0]."</td>";
+		print "<td> - </td>";
+		print "<td>".$row[1]."</td>";
+		print "</tr>";
+	}
+	print "</table>";
+	print "</div>";
+}
+function tree2pairs( $tree, $prefix="" ) {
+	$list = array();
+	foreach( $tree as $k=>$v ) {
+		$v = ensureList($v);
+		foreach( $v as $v2 ) {
+			if( !is_scalar($v2) &&  isAssoc($v2) ) {
+				$list = array_merge( $list, tree2Pairs( $v2, "$k." ));
+                	} else {
+				$list []=  array( $prefix.$k, $v2 );
+                	}
+		}
+	}
+	return $list;
+}
 
 ?>

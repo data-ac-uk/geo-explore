@@ -173,7 +173,7 @@ error_reporting(E_ALL);
 						if( @$data["WMS_Capabilities"] )
 						{
 							RenderInfoBlock( "WMS Information", "<p>What is WMS? Unfortunately nobody knows yet.</p>" );
-							RenderXMLBlock( "Service Information", @$data["WFS_Capabilities"]["Service"] );
+							RenderXMLBlock( "service-info", "Service Information", @$data["WFS_Capabilities"]["Service"] );
 							$version = $data['WMS_Capabilities']['version'];
 							if ($debug)
 							{
@@ -184,8 +184,8 @@ error_reporting(E_ALL);
 						elseif( @$data["WFS_Capabilities"] )
 						{
 							RenderInfoBlock( "WFS Information", "<p>What is WFS? Unfortunately nobody knows yet.</p>" );
-							RenderXMLBlock( "Service Identification", @$data["WFS_Capabilities"]["ServiceIdentification"] );
-							RenderXMLBlock( "Service Provider", @$data["WFS_Capabilities"]["ServiceProvider"] );
+							RenderXMLBlock( "service-id", "Service Identification", @$data["WFS_Capabilities"]["ServiceIdentification"] );
+							RenderXMLBlock( "service-provider", "Service Provider", @$data["WFS_Capabilities"]["ServiceProvider"] );
 							 $version = $data['WFS_Capabilities']['version'];
 						    $om = $data["WFS_Capabilities"]["OperationsMetadata"]["Operation"];
 						   
@@ -459,12 +459,13 @@ function RenderInfoBlock( $title, $html ) {
 	print "<h1>$title</h1>";
 	print $html;
 }
-function RenderXMLBlock( $title, $data ) {
+function RenderXMLBlock( $id, $title, $data ) {
 	$list = tree2pairs( $data );
         if( !count($list) ) { return; }
-
-	print "<h1>$title</h1>";
-	print "<table border='1'>";
+	
+	print "<h1>$title <small><a href=\"#\"class=\"collapse-trigger\" data-toggle=\"collapse\" data-target=\"#".$id."-expandable\">show</a></small></h1>";
+	print "<div id=\"".$id."-expandable\" class=\"collapse\">";
+	print "<table class=\"table table-condensed\">";
         foreach( $list as $row ) {
 		print "<tr>";
 		print "<td>".$row[0]."</td>";
@@ -473,6 +474,7 @@ function RenderXMLBlock( $title, $data ) {
 		print "</tr>";
 	}
 	print "</table>";
+	print "</div>";
 }
 function tree2pairs( $tree, $prefix="" ) {
 	$list = array();
