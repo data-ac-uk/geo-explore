@@ -173,7 +173,7 @@ error_reporting(E_ALL);
 						if( @$data["WMS_Capabilities"] )
 						{
 							RenderInfoBlock( "wms-info", "WMS Information", "<p>What is WMS?</p> from Wikipedia: <blockquote>A Web Map Service (WMS) is a standard protocol for serving (over the Internet) georeferenced map images which a map server generates using data from a GIS database. The Open Geospatial Consortium developed the specification and first published it in 1999.</blockquote> Or check the <a href='http://www.opengeospatial.org/standards/wms'>specs</a> ");			
-							RenderXMLBlock( "service-info", "Service Information", @$data["WFS_Capabilities"]["Service"] );
+							RenderXMLBlock( "service-info", "Service Information", @$data["WMS_Capabilities"]["Service"] );
 							$version = $data['WMS_Capabilities']['version'];
 							if ($debug)
 							{
