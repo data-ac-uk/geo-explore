@@ -172,6 +172,7 @@ error_reporting(E_ALL);
 						
 						if( @$data["WMS_Capabilities"] )
 						{
+							RenderInfoBlock( "WMS Information", "<p>What is WMS? Unfortunately nobody knows yet.</p>" );
 							RenderXMLBlock( "Service Information", @$data["WFS_Capabilities"]["Service"] );
 							$version = $data['WMS_Capabilities']['version'];
 							if ($debug)
@@ -182,6 +183,7 @@ error_reporting(E_ALL);
 						}		
 						elseif( @$data["WFS_Capabilities"] )
 						{
+							RenderInfoBlock( "WFS Information", "<p>What is WFS? Unfortunately nobody knows yet.</p>" );
 							RenderXMLBlock( "Service Identification", @$data["WFS_Capabilities"]["ServiceIdentification"] );
 							RenderXMLBlock( "Service Provider", @$data["WFS_Capabilities"]["ServiceProvider"] );
 							 $version = $data['WFS_Capabilities']['version'];
@@ -453,6 +455,10 @@ error_reporting(E_ALL);
 }
 
 
+function RenderInfoBlock( $title, $html ) {
+	print "<h1>$title</h1>";
+	print $html;
+}
 function RenderXMLBlock( $title, $data ) {
 	$list = tree2pairs( $data );
         if( !count($list) ) { return; }
