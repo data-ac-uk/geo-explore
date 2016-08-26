@@ -350,8 +350,7 @@ error_reporting(E_ALL);
          }
          print "<a class=\"btn btn-sm btn-primary\" href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View Map</a>";
          
-			?>			
-			<br /><br />
+			?>						
 			<div class="btn-group">
 			  <a href="#" class="btn btn-sm btn-default">View Data</a>
 			  <a aria-expanded="false" href="#" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>

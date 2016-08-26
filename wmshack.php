@@ -94,6 +94,7 @@ error_reporting(E_ALL);
 					?>
 					<div class="row">						
 						<div class="col-lg-12">
+							<h2>Available Datsets</h2>
 							<?php
 								$dom = new DOMDocument('1.0','UTF-8');
 			
