@@ -179,7 +179,7 @@ error_reporting(E_ALL);
 							{
 								RenderDebugOutput($data['WMS_Capabilities']['Capability']['Layer']);
 							}
-							RenderWmsData($data, $get_endpoint, $version);									    
+							RenderWmsData($data, $get_endpoint, $version);									    							
 						}		
 						elseif( @$data["WFS_Capabilities"] )
 						{
