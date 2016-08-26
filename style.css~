@@ -1,4 +1,4 @@
-.btn-group { width: 7em; }
+.btn-group { width: 8em; }
 
 .btn + .btn-group { margin-top: 0.5em; }
 

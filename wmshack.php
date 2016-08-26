@@ -120,7 +120,7 @@ error_reporting(E_ALL);
 										<table class=table table-striped>
 											<thead>
 												<tr>
-													<th>Name</th>
+													<th colspan="2">Name</th>
 													<th>Title</th>
 													<th>Link</th>
 												</tr>
@@ -159,7 +159,7 @@ error_reporting(E_ALL);
 									    <table class="table table-striped">
 											<thead>
 												<tr>
-													<th>Name</th>
+													<th colspan="2">Name</th>
 													<th>Title</th>
 													<th>Abstract</th>
 													<th>Link</th>

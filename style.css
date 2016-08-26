@@ -2,6 +2,8 @@
 
 .btn + .btn-group { margin-top: 0.5em; }
 
+th { text-align: center; }
+
 html, body {
   height:100%;
   margin:0;
