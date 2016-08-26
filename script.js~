@@ -1,0 +1,20 @@
+function toggleCollapseText(element)
+{	
+	alert('element');
+	
+	if (element.text() == "show")
+	{
+		alert('1');
+		//element.text('hide');
+	}
+	else {
+		alert('2');
+		//element.text('show');
+	}
+}
+
+$(document).ready(
+	function() {
+		$('a.collapse-trigger').on('click', toggleCollapseText($(this)));
+	}
+);
