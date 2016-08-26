@@ -83,11 +83,12 @@ error_reporting(E_ALL);
 	function RenderWmsData($data, $get_endpoint)
 	{
 		?>
-		<table class=table table-striped>
+		<table class="table table-striped">
 			<thead>
 				<tr>
 					<th colspan="2">Name</th>
 					<th>Title</th>
+					<th>Abstract</th>
 					<th>Link</th>
 				</tr>
 			</thead>
