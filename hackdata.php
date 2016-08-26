@@ -1,70 +1,100 @@
 <?php
-if (empty($_GET['url']))
-{
-	die("No URL specified");
-}
-$url = $_GET['url'];
+$url = "";
 $format = "JSON";
-if (!empty($_GET['format'])) $format = $_GET['format'];
+$endpoint = null;
+$crud = null;
+if (isset($argv[1]))
+{
+	$urls[] = $argv[1];
+      
+}
+elseif (isset($_GET['url']))
+{
+	$urls[] = $_GET['url'];
+}
+else {
+	$urls = file(__DIR__."/data/getCapabilitiesURLs.txt");
+}
 
-$dom = new DOMDocument('1.0','UTF-8');
-if (!$dom->load($url))
-{
-   die("Error in XML document");
-}
-$data = dom_to_array( $dom );
-//header( "Content-type: text/plain" );
-list( $endpoint, $crud ) = preg_split( "/\?/", $url, 2 );
-$processedlist = array();
-$urlpathbits = explode("/", "http://{$_SERVER['HTTP_HOST']}{$_SERVER['SCRIPT_NAME']}");
-$urlpath = implode("/", array_slice($urlpathbits, 0, -1));
+if (isset($argv[2])) $format = $argv[2];
+elseif (!empty($_GET['format'])) $format = $_GET['format'];
 
-if( !empty($data["WMS_Capabilities"]) )
-{
-    build_wms_layer( $data['WMS_Capabilities']['Capability']['Layer'], $endpoint, $format );
-}
-elseif( !empty($data["WFS_Capabilities"]) )
-{
-    $om = $data["WFS_Capabilities"]["OperationsMetadata"]["Operation"];
-    $oformats = array();
-    foreach( $om as $o ) {
-        if( $o["name"] == "GetFeature" ) {
-            foreach( $o["Parameter"] as $p ) {
-                if( $p["name"] == "outputFormat" ) {
-                    $oformats = ensureList($p["Value"]);
-                }
-            } 
-        }
-    }        
-    build_ftlist( $data['WFS_Capabilities']['FeatureTypeList'], $endpoint, $oformats, $format );
-}
-else 
-{
-    die( "Unrecognised file format");
-}
 header( "Content-type: text/".strtolower($format) );
-switch ($format) {
-        case "JSON":
-                echo json_encode($processedlist);
-                break;
-        case "CSV":
-        case "TSV":
-                $stdout = fopen('php://output','w');
-                foreach( $processedlist as $line ){
-                        if ($format == "CSV") {
-                                fputcsv($stdout, $line);
-                        }
-                        else {
-                                fputcsv($stdout, $line, "\t");
-                        }	
-			if (preg_match('/Win/', $_SERVER['HTTP_USER_AGENT'])) {		
-				print "\r\n";
-			}
-                }
-                fflush($stdout);
-                break;
-        default:
-                echo json_encode($processedlist);
+if (in_array($format, array("CSV", "TSV"))) { 
+	$stdout = fopen('php://output','w');
+}
+
+$options = [
+  'http' => [
+    'method' => 'GET',
+    'timeout' => '5'
+  ]
+];
+$context = stream_context_create($options);
+libxml_set_streams_context($context);
+
+foreach ($urls as $url) {
+	$dom = new DOMDocument('1.0','UTF-8');
+//	error_log($url);
+	if (!$dom->load($url)) {
+   		error_log("Error in XML document: $url");
+		continue;
+	}
+	$data = dom_to_array( $dom );
+	list( $endpoint, $crud ) = preg_split( "/\?/", $url, 2 );
+	$processedlist = array();
+	if (empty($_SERVER["HTTP_HOST"])) {
+		$urlpath = "http://localhost/geo-explore/";
+	}
+	else {
+		$urlpathbits = explode("/", "http://{$_SERVER['HTTP_HOST']}{$_SERVER['SCRIPT_NAME']}");
+		$urlpath = implode("/", array_slice($urlpathbits, 0, -1));
+	}
+	if( !empty($data["WMS_Capabilities"]) )	{
+	    build_wms_layer( $data['WMS_Capabilities']['Capability']['Layer'], $endpoint, $format );
+	}
+	elseif (!empty($data["WFS_Capabilities"])) {
+		$om = $data["WFS_Capabilities"]["OperationsMetadata"]["Operation"];
+		$oformats = array();
+    		foreach( $om as $o ) {
+        		if( $o["name"] == "GetFeature" ) {
+            			foreach( $o["Parameter"] as $p ) {
+                			if( $p["name"] == "outputFormat" ) {
+                    				$oformats = ensureList($p["Value"]);
+                			}
+            			} 
+        		}
+    		}        
+	    	build_ftlist( $data['WFS_Capabilities']['FeatureTypeList'], $endpoint, $oformats, $format );
+	}
+	else {
+		error_log("Unrecognised file format for $url");
+    		continue;
+	}
+	header( "Content-type: text/".strtolower($format) );
+	switch ($format) {
+        	case "JSON":
+                	echo json_encode($processedlist);
+	                break;
+        	case "CSV":
+	        case "TSV":
+        	        $stdout = fopen('php://output','w');
+                	foreach( $processedlist as $line ){
+                        	if ($format == "CSV") {
+                                	fputcsv($stdout, $line);
+                        	}
+	                        else {
+        	                        fputcsv($stdout, $line, "\t");
+                	        }	
+				if (preg_match('/Win/', $_SERVER['HTTP_USER_AGENT'])) {		
+					print "\r\n";
+				}
+                	}
+                	fflush($stdout);
+                	break;
+	        default:
+        	        echo json_encode($processedlist);
+	}
 }
 exit;
 
