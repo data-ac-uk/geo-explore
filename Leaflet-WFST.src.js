@@ -925,11 +925,19 @@ L.WFS = L.FeatureGroup.extend({
     this.options.srsName = this.options.crs.code;
 
     var that = this;
-    this.describeFeatureType(function () {
-      if (that.options.showExisting) {
-        that.loadFeatures();
-      }
-    });
+
+    if( false ) {
+      this.describeFeatureType(function () {
+        if (that.options.showExisting) {
+          that.loadFeatures();
+        }
+      });
+    } else {
+      // don't care about descriptions, just gimmie features
+      // useful for missing schemas, or ones with <include>
+      // bad for editing maps
+      that.loadFeatures();
+    }
   },
 
   namespaceName: function (name) {
