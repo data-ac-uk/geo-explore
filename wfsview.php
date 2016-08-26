@@ -42,7 +42,7 @@ $(document).ready(function(){
 
      function onEachFeature(feature, layer) {
         console.log( feature );
-  	var popupContent = json_encode( feature.feature );
+  	var popupContent = JSON.stringify( feature.feature );
         layer.bindPopup(popupContent);
     }
 
