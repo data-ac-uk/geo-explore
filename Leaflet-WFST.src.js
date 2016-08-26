@@ -1020,6 +1020,9 @@ L.WFS = L.FeatureGroup.extend({
         layers.forEach(function (element) {
           element.state = that.state.exist;
           that.addLayer(element);
+          if( that.options.onEachFeature ) {
+            that.options.onEachFeature( element, that );
+          }
         });
 
         that.setStyle(that.options.style);
