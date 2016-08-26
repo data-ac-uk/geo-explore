@@ -172,7 +172,7 @@ error_reporting(E_ALL);
 						
 						if( @$data["WMS_Capabilities"] )
 						{
-							RenderInfoBlock( "WMS Information", "<p>What is WMS? Unfortunately nobody knows yet.</p>" );
+							RenderInfoBlock( "WMS Information", "<p>What is WMS? Unfortunately nobody knows yet. Check the <a href="http://www.opengeospatial.org/standards/wms">specs</a> </p>" );
 							RenderXMLBlock( "Service Information", @$data["WFS_Capabilities"]["Service"] );
 							$version = $data['WMS_Capabilities']['version'];
 							if ($debug)
@@ -183,7 +183,7 @@ error_reporting(E_ALL);
 						}		
 						elseif( @$data["WFS_Capabilities"] )
 						{
-							RenderInfoBlock( "WFS Information", "<p>What is WFS? Unfortunately nobody knows yet.</p>" );
+							RenderInfoBlock( "WFS Information", "<p>What is WFS? Unfortunately nobody knows yet. Check the <a href="http://www.opengeospatial.org/standards/wfs">specs</a> </p>" );
 							RenderXMLBlock( "Service Identification", @$data["WFS_Capabilities"]["ServiceIdentification"] );
 							RenderXMLBlock( "Service Provider", @$data["WFS_Capabilities"]["ServiceProvider"] );
 							 $version = $data['WFS_Capabilities']['version'];
