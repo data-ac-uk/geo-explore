@@ -41,10 +41,24 @@ $(document).ready(function(){
 
 
      function onEachFeature(feature, layer) {
-        console.log( feature );
-  	var popupContent = JSON.stringify( feature.feature );
+  	//var popupContent = JSON.stringify( feature.feature,null,3 );
+  	var popupContent = structure2tree(feature.feature);
+
         layer.bindPopup(popupContent);
-    }
+     }
+
+     function structure2tree( s, p='' ) {
+        if( typeof(s) == 'object' ) {
+          var keys = Object.keys(s);
+          h = "<table>";
+          for( var i=0;i<keys.length;++i ) {
+            h +="<li>"+p+keys[i]+": "+structure2tree( s[keys[i]] )+"</li>";
+          }
+          h += "<table>";
+          return h;
+        }
+        return s;
+     }
 
     
     var wfst = new L.WFST({

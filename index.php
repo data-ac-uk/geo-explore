@@ -457,7 +457,7 @@ error_reporting(E_ALL);
 
 function RenderInfoBlock( $id, $title, $html ) {
 	print "<div class=\"alert alert-info\">";
-	print "<h1>$title <small><a href=\"#\"class=\"collapse-trigger\" data-toggle=\"collapse\" data-target=\"#".$id."-expandable\">show</a></small></h1>";
+	print "<n2>$title <small><a href=\"#\"class=\"collapse-trigger\" data-toggle=\"collapse\" data-target=\"#".$id."-expandable\">show</a></small></n2>";
 	print "<div id=\"".$id."-expandable\" class=\"collapse\">";	
 	print $html;
 	print "</div>";
@@ -467,7 +467,7 @@ function RenderXMLBlock( $id, $title, $data ) {
 	$list = tree2pairs( $data );
         if( !count($list) ) { return; }
 	
-	print "<h1>$title <small><a href=\"#\"class=\"collapse-trigger\" data-toggle=\"collapse\" data-target=\"#".$id."-expandable\">show</a></small></h1>";
+	print "<n2>$title <small><a href=\"#\"class=\"collapse-trigger\" data-toggle=\"collapse\" data-target=\"#".$id."-expandable\">show</a></small></n2>";
 	print "<div id=\"".$id."-expandable\" class=\"collapse\">";
 	print "<table class=\"table table-condensed\">";
         foreach( $list as $row ) {
