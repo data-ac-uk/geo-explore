@@ -181,6 +181,8 @@ error_reporting(E_ALL);
 						}		
 						elseif( @$data["WFS_Capabilities"] )
 						{
+							RenderXMLBlock( "Service Identification", @$data["WFS_Capabilities"]["ServiceIdentification"] );
+							RenderXMLBlock( "Service Provider", @$data["WFS_Capabilities"]["ServiceProvider"] );
 							 $version = $data['WFS_Capabilities']['version'];
 						    $om = $data["WFS_Capabilities"]["OperationsMetadata"]["Operation"];
 						   
@@ -450,5 +452,34 @@ error_reporting(E_ALL);
 }
 
 
+function RenderXMLBlock( $title, $data ) {
+	$list = tree2pairs( $data );
+        if( !count($list) ) { return; }
+
+	print "<h1>$title</h1>";
+	print "<table border='1'>";
+        foreach( $list as $row ) {
+		print "<tr>";
+		print "<td>".$row[0]."</td>";
+		print "<td> - </td>";
+		print "<td>".$row[1]."</td>";
+		print "</tr>";
+	}
+	print "</table>";
+}
+function tree2pairs( $tree, $prefix="" ) {
+	$list = array();
+	foreach( $tree as $k=>$v ) {
+		$v = ensureList($v);
+		foreach( $v as $v2 ) {
+			if( !is_scalar($v2) &&  isAssoc($v2) ) {
+				$list = array_merge( $list, tree2Pairs( $v2, "$k." ));
+                	} else {
+				$list []=  array( $prefix.$k, $v2 );
+                	}
+		}
+	}
+	return $list;
+}
 
 ?>
