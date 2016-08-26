@@ -173,7 +173,7 @@ error_reporting(E_ALL);
 						if( @$data["WMS_Capabilities"] )
 						{
 							RenderInfoBlock( "WMS Information", "<p>What is WMS? Unfortunately nobody knows yet.</p>" );
-							RenderXMLBlock( "service-info", "Service Information", @$data["WFS_Capabilities"]["Service"] );
+							RenderXMLBlock( "service-info", "Service Information", @$data["WMS_Capabilities"]["Service"] );
 							$version = $data['WMS_Capabilities']['version'];
 							if ($debug)
 							{
@@ -235,7 +235,7 @@ error_reporting(E_ALL);
 		?>
 		<div class="row">
 			<div class="col-lg-12">
-				<form action="wmshack.php" method="get" class="form-horizontal">
+				<form action="" method="get" class="form-horizontal">
 					<fieldset>
 						<legend>Data Settings</legend>
 						<div class="form-group">
