@@ -51,8 +51,8 @@
                                 <div class="col-lg-12">
                                         <h3>WMS - Web Mapping Service</h3>
                                         <ul>
-                                                <li><a href="index.php?url=http%3A%2F%2Fapps.luton.gov.uk%2Finspire%2Fwms.exe%3FREQUEST%3DGETCAPABILITIES%26SERVICE%3DWMS">Luton City Council</a></li>
-						<li><a href="index.php?url=http%3A%2F%2Farcgisweb.fife.gov.uk%2Fgeoserver%2Ffife%2Fows%3Frequest%3DgetCapabilities%26version%3D1.3.0%26service%3DWMS">Fife City Council</a></li>
+                                                <li><a href="index.php?url=http%3A%2F%2Fapps.luton.gov.uk%2Finspire%2Fwms.exe%3FREQUEST%3DGETCAPABILITIES%26SERVICE%3DWMS">Luton Town Council</a></li>
+						<li><a href="index.php?url=http%3A%2F%2Farcgisweb.fife.gov.uk%2Fgeoserver%2Ffife%2Fows%3Frequest%3DgetCapabilities%26version%3D1.3.0%26service%3DWMS">Fife Council</a></li>
 						<li><a href="index.php?url=http%3A%2F%2Fdata.nottinghamshire.gov.uk%2Fgeoserver%2Fwms%3Frequest%3DGetCapabilities">Nottinghamshire County Council</a></li>
                                         </ul>
                                 </div>
