@@ -56,13 +56,13 @@ $(document).ready(function(){
   	//var popupContent = JSON.stringify( feature.feature,null,3 );
   	var popupContent = structure2tree(feature.feature);
 
-        layer.bindPopup(popupContent, { maxWidth: '600' });
+        feature.bindPopup(popupContent, { maxWidth: '600' });
      }
 
      function structure2tree( s, p='' ) {
         if( typeof(s) == 'object' ) {
           var keys = Object.keys(s);
-          h = "<table class='propinfo'>";
+          var h = "<table class='propinfo'>";
           for( var i=0;i<keys.length;++i ) {
             h +="<tr><th>"+p+keys[i]+":</th><td>"+structure2tree( s[keys[i]] )+"</td></tr>";
           }

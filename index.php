@@ -96,6 +96,7 @@ error_reporting(E_ALL);
 	{
 		?>
 		<h2>Available Datsets</h2>
+  		<p>Please note, we don't currently have the code to zoom to the correct location for these maps so you will have to do it by hand. Sorry.</p>
 		<table class="table table-striped">
 			<thead>
 				<tr>
@@ -172,7 +173,7 @@ error_reporting(E_ALL);
 						
 						if( @$data["WMS_Capabilities"] )
 						{
-							RenderInfoBlock( "wms-info", "WMS Information", "<p>What is WMS?</p> from Wikipedia: <blockquote>A Web Map Service (WMS) is a standard protocol for serving (over the Internet) georeferenced map images which a map server generates using data from a GIS database. The Open Geospatial Consortium developed the specification and first published it in 1999.</blockquote> Or check the <a href='http://www.opengeospatial.org/standards/wms'>specs</a> ");			
+							RenderInfoBlock( "wms-info", "Web Mapping Service (WMS) Information", "<p>What is WMS?</p> from Wikipedia: <blockquote>A Web Map Service (WMS) is a standard protocol for serving (over the Internet) georeferenced map images which a map server generates using data from a GIS database. The Open Geospatial Consortium developed the specification and first published it in 1999.</blockquote> Or check the <a href='http://www.opengeospatial.org/standards/wms'>specs</a> ");			
 							RenderXMLBlock( "service-info", "Service Information", @$data["WMS_Capabilities"]["Service"] );
 							$version = $data['WMS_Capabilities']['version'];
 							if ($debug)
@@ -183,7 +184,7 @@ error_reporting(E_ALL);
 						}		
 						elseif( @$data["WFS_Capabilities"] )
 						{
-							RenderInfoBlock( "wfs-info", "WFS Information", "<p>What is WFS?</p> from Wikipedia: <blockquote>the Open Geospatial Consortium Web Feature Service Interface Standard (WFS) provides an interface allowing requests for geographical features across the web using platform-independent calls.</blockquote> Or check the <a href='http://www.opengeospatial.org/standards/wfs'>specs</a>" );	
+							RenderInfoBlock( "wfs-info", "Web Feature Service (WFS) Information", "<p>What is WFS?</p> from Wikipedia: <blockquote>the Open Geospatial Consortium Web Feature Service Interface Standard (WFS) provides an interface allowing requests for geographical features across the web using platform-independent calls.</blockquote> Or check the <a href='http://www.opengeospatial.org/standards/wfs'>specs</a>" );	
 							RenderXMLBlock( "service-id", "Service Identification", @$data["WFS_Capabilities"]["ServiceIdentification"] );
 							RenderXMLBlock( "service-provider", "Service Provider", @$data["WFS_Capabilities"]["ServiceProvider"] );
 							 $version = $data['WFS_Capabilities']['version'];
@@ -242,8 +243,8 @@ error_reporting(E_ALL);
 							<label for="url" class="col-lg-2 control-label">URL</label>
 							<div class="col-lg-10">
 								<input class="form-control" id="url" name="url" type="text"
-										<?php if (!isset($url)) { print "placeholder=\"e.g. http://www.southampton.gov.uk/geoserver/Inspire/wms?service=wfs&version=1.3.0&request=GetCapabilities\""; } ?>
-										<?php if (isset($url)) { print "value=\"" . $url . "\""; } ?> 
+										<?php if (!isset($url)) { print "placeholder='e.g. http://www.southampton.gov.uk/geoserver/Inspire/wms?service=wfs&version=1.3.0&request=GetCapabilities'"; } ?>
+										<?php if (isset($url)) { print "value='" . $url . "'"; } ?> 
 								/>
 							</div>
 						</div>
@@ -272,7 +273,7 @@ error_reporting(E_ALL);
 ?>
 
 <?php
-
+        /* adapted from an example in the comments on php.net */
 	function dom_to_array($root)
 	{
 	    $result = array();
@@ -364,13 +365,19 @@ error_reporting(E_ALL);
 		}
 	
 		print "</td>";
-		print "<td>" . @$layer["Name"] . "</td>";
+     		if( !@$layer["Name"] ) {
+          		print "<td></td>";
+  		} elseif( is_qname( @$layer["Name"] ) ) {
+          		print "<td>".@$layer["Name"]."</td>";
+     		} else {
+          		print "<td><div><span class='label label-warning'>Warning - this code is invalid and may not work</span></div>".@$layer["Name"]."</td>";
+     		}
 		print "<td>" . @$layer["Title"] . "</td>";
 		print "<td>" . @$layer["Abstract"] . "</td>";
 		print "<td>";
 		if (@$layer["Name"])
 		{
-			print "<a class=\"btn btn-sm btn-primary\" href='wmsview.php?endpoint=$endpoint&layer=" . $layer["Name"] . "'>View</a>";
+			print "<a class='btn btn-sm btn-primary' href='wmsview.php?endpoint=$endpoint&layer=" . $layer["Name"] . "'>View</a>";
 		}
 	
 		print "</td>";
@@ -378,7 +385,7 @@ error_reporting(E_ALL);
 		if (@$layer["Layer"])
 		{
 			print "<tr><td colspan='4'>";
-			print "<table class=\"table table-striped\" border='1' style='width:100%'>";
+			print "<table class='table table-striped' border='1' style='width:100%'>";
 			print "<tr><th></th><th>Name</th><th>Title</th><th>Abstract</th><th>Link</th></tr>";
 			$list = ensureList($layer["Layer"]);
 			foreach($list as $sublayer)
@@ -409,7 +416,12 @@ error_reporting(E_ALL);
      print "<td>";     
      for( $i=0;$i<$depth;++$i ) { print "&bull;"; }
      print "</td>";
-     print "<td>".@$ft["Name"]."</td>";
+     if( is_qname( $ft["Name"] ) ) {
+          print "<td>".@$ft["Name"]."</td>";
+     } else {
+          print "<td><div><span class='label label-warning'>Warning - this code is invalid and may not work</span></div>".@$ft["Name"]."</td>";
+     }
+ 
      print "<td>".@$ft["Title"]."</td>";
      print "<td>".@$ft["Abstract"]."</td>";
      
@@ -422,7 +434,7 @@ error_reporting(E_ALL);
          if( preg_match( "/:/", $ft["Name"] ) ) {
              list( $ns, $term ) = preg_split( "/:/", $ft["Name"] );
          }
-         print "<a class=\"btn btn-sm btn-primary\" href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View Map</a>";                  
+         print "<a class='btn btn-sm btn-primary' href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View Map</a>";                  
          
 			?>						
 			<div class="btn-group">
@@ -454,11 +466,18 @@ error_reporting(E_ALL);
     }
 }
 
+function is_qname( $string ) {
+  # QName = ( NCName+":" )? + NCName
+  # NCName = [_A-Za-z][-._A-Za-z0-9]* 
+  # nb ignoring unicode!
+  return preg_match( "/^([_A-Za-z][-._A-Za-z0-9]*:)?[_A-Za-z][-._A-Za-z0-9]*$/", $string );
+}
+
 
 function RenderInfoBlock( $id, $title, $html ) {
-	print "<div class=\"alert alert-info\">";
-	print "<h2>$title <small><a href=\"#\"class=\"collapse-trigger\" data-toggle=\"collapse\" data-target=\"#".$id."-expandable\">show</a></small></h2>";
-	print "<div id=\"".$id."-expandable\" class=\"collapse\">";	
+	print "<div class='alert alert-info'>";
+	print "<h2>$title <button type='button' class='btn btn-primary btn-lg collapse-trigger' data-toggle='collapse' data-target='#".$id."-expandable'><span class='glyphicon glyphicon-plus' aria-hidden='true'></span></button></h2>";
+	print "<div id='".$id."-expandable' class='collapse'>";	
 	print $html;
 	print "</div>";
 	print "</div>";
@@ -467,9 +486,9 @@ function RenderXMLBlock( $id, $title, $data ) {
 	$list = tree2pairs( $data );
         if( !count($list) ) { return; }
 	
-	print "<h2>$title <small><a href=\"#\"class=\"collapse-trigger\" data-toggle=\"collapse\" data-target=\"#".$id."-expandable\">show</a></small></h2>";
-	print "<div id=\"".$id."-expandable\" class=\"collapse\">";
-	print "<table class=\"table table-condensed\">";
+	print "<h2>$title <button type='button' class='btn btn-primary btn-lg collapse-trigger' data-toggle='collapse' data-target='#".$id."-expandable'><span class='glyphicon glyphicon-plus' aria-hidden='true'></span></button></h2>";
+	print "<div id='".$id."-expandable' class='collapse'>";
+	print "<table class='table table-condensed'>";
         foreach( $list as $row ) {
 		print "<tr>";
 		print "<td>".$row[0]."</td>";

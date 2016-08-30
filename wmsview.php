@@ -30,7 +30,8 @@ $(document).ready(function(){
 
     L.tileLayer('https://tiles.maps.southampton.ac.uk/aer/{z}/{x}/{y}.png', {
 		attribution: 'Aerial photography &copy; Hampshire County Council',
-		maxZoom: 18
+        maxZoom: 20,
+        minZoom: 15
     }).addTo(map);
 
     var wmsLayer = L.tileLayer.wms('<?php print $_GET['endpoint']; ?>', {

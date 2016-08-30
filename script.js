@@ -1,16 +1,18 @@
 $(document).ready(
 	function() {
-		$('a.collapse-trigger').click(
+		$('button.collapse-trigger').click(
 			function() {
 				var element = $(this);
-				
-				if (element.text() == 'show')
+				var glyph = element.find( '.glyphicon' );
+				if( glyph.hasClass( 'glyphicon-plus' ))
 				{
-					element.text('hide');
+					glyph.removeClass( 'glyphicon-plus' );
+					glyph.addClass( 'glyphicon-minus' );
 				}
 				else 
 				{
-					element.text('show');
+					glyph.addClass( 'glyphicon-plus' );
+					glyph.removeClass( 'glyphicon-minus' );
 				}
 			}
 		);
