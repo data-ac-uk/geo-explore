@@ -11,6 +11,7 @@
   <script src="proj4-compressed.js"></script>
   <script src="proj4leaflet.js"></script>
   <script src="Leaflet-WFST.src.js"></script>
+  <script src="leaflet-hash.js"></script>
 <style>
 table.propinfo {
   border: solid 1px black;
@@ -85,7 +86,9 @@ $(document).ready(function(){
         },
         onEachFeature: onEachFeature
     }).addTo(map).once('load', function () {
-                map.fitBounds(wfst);
+       map.fitBounds(wfst);
+       // init hash afterwards
+       var hash = new L.Hash(map);
     });
 
 

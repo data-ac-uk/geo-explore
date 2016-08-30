@@ -8,6 +8,7 @@
   <link rel="stylesheet" type="text/css" media="all" href="style.css" />
   <script src="leaflet.js"></script>
   <script src="jquery.min.js"></script>
+  <script src="leaflet-hash.js"></script>
 </head>
 
 <body>
@@ -37,10 +38,11 @@ $(document).ready(function(){
     var wmsLayer = L.tileLayer.wms('<?php print $_GET['endpoint']; ?>', {
         layers: '<?php print $_GET['layer']; ?>', 
         format: 'image/png',
-        opacity: 1,
+        opacity: 0.8,
         transparent: true
     }).addTo(map);
 
+    var hash = new L.Hash(map);
 
 });
 

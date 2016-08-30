@@ -1,6 +1,6 @@
 $(document).ready(
 	function() {
-		$('button.collapse-trigger').click(
+		$('a.collapse-trigger').click(
 			function() {
 				var element = $(this);
 				var glyph = element.find( '.glyphicon' );

@@ -3,18 +3,31 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-	$url = null;
-	$debug = false;
-	
-	if (isset($_GET['url'])) 
-	{
-		$url = trim($_GET['url']);
+$url = null;
+$debug = false;
+
+if (isset($_GET['view'])) 
+{
+	$view = trim($_GET['view']);
+	if( $view == 'wfs' ) {
+		include "wfsview.php";
+		exit;
 	}
-	
-	if (isset($_GET['debug']))
-	{
-		$debug = $_GET['debug'];
+	if( $view == 'wms' ) {
+		include "wmsview.php";
+		exit;
 	}
+}
+
+if (isset($_GET['url'])) 
+{
+	$url = trim($_GET['url']);
+}
+
+if (isset($_GET['debug']))
+{
+	$debug = $_GET['debug'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,7 +63,7 @@ error_reporting(E_ALL);
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-12">
-					<h1>Geo-Explorer</h2>							
+					<h1><a href='?'>Geo-Explorer</a></h2>							
 				</div>
 			</div>
 						
@@ -63,7 +76,16 @@ error_reporting(E_ALL);
 				{
 					RenderResults($url, $debug);
 				}
+				else 
+				{
+					include( "examples.php" );
+				}
 			?>
+
+			<?php
+				RenderAbout();
+			?>
+			
 		</div>
 	</body>
 </html>
@@ -95,7 +117,9 @@ error_reporting(E_ALL);
 	function RenderWmsData($data, $get_endpoint, $version)
 	{
 		?>
-		<h2>Available Datsets</h2>
+		<div class='panel panel-info'>
+		<div class='panel-heading'>Available Datasets</div>
+		<div class='panel-body'>
   		<p>Please note, we don't currently have the code to zoom to the correct location for these maps so you will have to do it by hand. Sorry.</p>
 		<table class="table table-striped">
 			<thead>
@@ -103,7 +127,7 @@ error_reporting(E_ALL);
 					<th colspan="2">Name</th>
 					<th>Title</th>
 					<th>Abstract</th>
-					<th>Link</th>
+					<th></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -112,20 +136,24 @@ error_reporting(E_ALL);
 			?>
 			</tbody>										
 		</table>
+		</div>
+		</div>
 		<?php
 	}	
 	
 	function RenderWfsData($data, $get_endpoint, $post_endpoint, $version, $oformats)
 	{
 		?>
-		<h2>Available Datsets</h2>
+		<div class='panel panel-primary'>
+		<div class='panel-heading'>Available Datasets</div>
+		<div class='panel-body'>
 		<table class="table table-striped">
 			<thead>
 				<tr>
 					<th colspan="2">Name</th>
 					<th>Title</th>
 					<th>Abstract</th>
-					<th>Link</th>
+					<th></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -134,6 +162,8 @@ error_reporting(E_ALL);
 				?>
 			</tbody>										
 		</table>
+		</div>
+		</div>
 		<?php
 	}
 	
@@ -230,15 +260,43 @@ error_reporting(E_ALL);
 ?>
 
 <?php
+	function RenderAbout()
+	{
+		?>
+		<div class="row">
+			<div class="col-lg-12">
+				<div class='panel panel-info'>
+						<div class='panel-heading'>About this service</div>
+						<div class='panel-body'>
+<p>This service was created as a mini-project at the 2016 Research Festival of the <a href='http://www.wais.ecs.soton.ac.uk'>Web and Internet Science Research Group</a> at the <a href="http://www.southampton.ac.uk/">University of Southampton</a>. It is provided as-is and has no formal support model. The code is available at <a href='https://github.com/data-ac-uk/geo-explore'>Github</a>.</p>
+<p>You are encouraged to deep link to this service to help people explore specific services.</p>
+<p>There are still many features we could add. This service rather assumes UK map projections (27700) and has a number of fiddles and compromises to make certain services work (some spit out invalid XML!).</p>
+<h3>Team Members</h3>
+<ul>
+<li><a href='http://www.ecs.soton.ac.uk/person/cjg'>Christopher Gutteridge</a> - Team Leader</li>
+<li><a href='http://www.ecs.soton.ac.uk/people/sza1g10'>Said Aljaloud</a></li>
+<li><a href='http://www.ecs.soton.ac.uk/people/mwra1g13'>Mark Anderson</a></li>
+<li>Caroline Halcrow</li>
+<li><a href='http://www.ecs.soton.ac.uk/people/drn'>David Newman</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<?  
+	}
 
 	function RenderFindDataForm($url)
 	{
 		?>
 		<div class="row">
 			<div class="col-lg-12">
+		<div class='panel panel-info'>
+		<div class='panel-heading'>Select Dataset</div>
+		<div class='panel-body'>
+       				<p>Please enter the URL of a WFS or WMS "GetCapabilities" request.</p>
 				<form action="" method="get" class="form-horizontal">
 					<fieldset>
-						<legend>Data Settings</legend>
 						<div class="form-group">
 							<label for="url" class="col-lg-2 control-label">URL</label>
 							<div class="col-lg-10">
@@ -248,6 +306,7 @@ error_reporting(E_ALL);
 								/>
 							</div>
 						</div>
+<!--
 						<div class="form-group">			      
 							<div class="col-lg-10 col-lg-offset-2">			        
 								<div class="checkbox">
@@ -257,6 +316,7 @@ error_reporting(E_ALL);
 								</div>
 							</div>
 						</div>
+-->
 						 
 						<div class="form-group">
 							<div class="col-lg-10 col-lg-offset-2">
@@ -265,6 +325,7 @@ error_reporting(E_ALL);
 						</div>
 					</fieldset>
 				</form>
+                            </div></div>
 			</div>		
 		</div>
 		<?php	
@@ -361,7 +422,7 @@ error_reporting(E_ALL);
 		print "<td>";		
 		for ($i = 0; $i < $depth; ++$i)
 		{
-			print "&bull;";
+			#print "&bull;";
 		}
 	
 		print "</td>";
@@ -372,21 +433,23 @@ error_reporting(E_ALL);
      		} else {
           		print "<td><div><span class='label label-warning'>Warning - this code is invalid and may not work</span></div>".@$layer["Name"]."</td>";
      		}
+                if( @$layer["Title"] && is_array( $layer["Title"] ) && count($layer["Title"])==0 ) { $layer["Title"] = ""; }
+                if( @$layer["Abstract"] && is_array( $layer["Abstract"] ) && count($layer["Abstract"])==0 ) { $layer["Abstract"] = ""; }
 		print "<td>" . @$layer["Title"] . "</td>";
 		print "<td>" . @$layer["Abstract"] . "</td>";
 		print "<td>";
 		if (@$layer["Name"])
 		{
-			print "<a class='btn btn-sm btn-primary' href='wmsview.php?endpoint=$endpoint&layer=" . $layer["Name"] . "'>View</a>";
+			print "<a class='btn btn-sm btn-primary' href='?view=wms&endpoint=$endpoint&layer=" . $layer["Name"] . "'>View</a>";
 		}
 	
 		print "</td>";
 		print "</tr>";
 		if (@$layer["Layer"])
 		{
-			print "<tr><td colspan='4'>";
+			print "<tr><td colspan='5'>";
 			print "<table class='table table-striped' border='1' style='width:100%'>";
-			print "<tr><th></th><th>Name</th><th>Title</th><th>Abstract</th><th>Link</th></tr>";
+			print "<tr><th></th><th>Name</th><th>Title</th><th>Abstract</th><th></th></tr>";
 			$list = ensureList($layer["Layer"]);
 			foreach($list as $sublayer)
 			{
@@ -408,10 +471,8 @@ error_reporting(E_ALL);
 
     foreach( $list as $ft ) 
     {
-		if( @is_array( $ft["Abstract"] ) ) 
-		{ 
-			$ft["Abstract"] = print_r( $ft["Abstract"],1 ); 
-		}
+                if( @$ft["Title"] && is_array( $ft["Title"] ) && count($ft["Title"])==0 ) { $ft["Title"] = ""; }
+                if( @$ft["Abstract"] && is_array( $ft["Abstract"] ) && count($ft["Abstract"])==0 ) { $ft["Abstract"] = ""; }
      print "<tr>";
      print "<td>";     
      for( $i=0;$i<$depth;++$i ) { print "&bull;"; }
@@ -434,7 +495,7 @@ error_reporting(E_ALL);
          if( preg_match( "/:/", $ft["Name"] ) ) {
              list( $ns, $term ) = preg_split( "/:/", $ft["Name"] );
          }
-         print "<a class='btn btn-sm btn-primary' href='wfsview.php?endpoint=$post_endpoint&namespace=$ns&term=$term'>View Map</a>";                  
+         print "<a class='btn btn-sm btn-primary' href='?view=wfs&endpoint=$post_endpoint&namespace=$ns&term=$term'>View Map</a>";                  
          
 			?>						
 			<div class="btn-group">
@@ -475,9 +536,11 @@ function is_qname( $string ) {
 
 
 function RenderInfoBlock( $id, $title, $html ) {
-	print "<div class='alert alert-info'>";
-	print "<h2>$title <button type='button' class='btn btn-primary btn-lg collapse-trigger' data-toggle='collapse' data-target='#".$id."-expandable'><span class='glyphicon glyphicon-plus' aria-hidden='true'></span></button></h2>";
-	print "<div id='".$id."-expandable' class='collapse'>";	
+	print "<div class='panel panel-info'>";
+	print "<div class='panel-heading'>";
+	print "<a class='geo-panel-ct collapse-trigger' data-toggle='collapse' data-target='#".$id."-expandable'><span class='glyphicon glyphicon-plus' aria-hidden='true'></span> $title</a>";
+	print "</div>";
+	print "<div  id='".$id."-expandable' class='panel-body collapse'>";	
 	print $html;
 	print "</div>";
 	print "</div>";
@@ -486,8 +549,11 @@ function RenderXMLBlock( $id, $title, $data ) {
 	$list = tree2pairs( $data );
         if( !count($list) ) { return; }
 	
-	print "<h2>$title <button type='button' class='btn btn-primary btn-lg collapse-trigger' data-toggle='collapse' data-target='#".$id."-expandable'><span class='glyphicon glyphicon-plus' aria-hidden='true'></span></button></h2>";
-	print "<div id='".$id."-expandable' class='collapse'>";
+	print "<div class='panel panel-primary'>";
+	print "<div class='panel-heading'>";
+	print "<a class='geo-panel-ct collapse-trigger' data-toggle='collapse' data-target='#".$id."-expandable'><span class='glyphicon glyphicon-plus' aria-hidden='true'></span> $title</a>";
+	print "</div>";
+	print "<div  id='".$id."-expandable' class='panel-body collapse'>";	
 	print "<table class='table table-condensed'>";
         foreach( $list as $row ) {
 		print "<tr>";
@@ -497,6 +563,7 @@ function RenderXMLBlock( $id, $title, $data ) {
 		print "</tr>";
 	}
 	print "</table>";
+	print "</div>";
 	print "</div>";
 }
 function tree2pairs( $tree, $prefix="" ) {
